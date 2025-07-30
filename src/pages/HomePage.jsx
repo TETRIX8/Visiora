@@ -649,38 +649,53 @@ const HomePage = () => {
         <div className="container">
           <div className="footer-content">
             <div className="footer-brand">
-              <h3>🎨 Visiora</h3>
-              <p>Where Every Image Radiates an Aura of Imagination</p>
+              <div className="brand-info">
+                <h3>🎨 Visiora</h3>
+                <p>Where Every Image Radiates an Aura of Imagination</p>
+                <p className="tagline">
+                  Transform your ideas into stunning visuals with advanced AI
+                  technology
+                </p>
+              </div>
             </div>
 
             <div className="footer-features">
               <div className="feature-grid">
                 <div className="feature-item">
                   <div className="feature-icon">🤖</div>
-                  <h4>Multiple AI Models</h4>
-                  <p>Choose from Flux, Turbo, and Kontext</p>
+                  <h4>Advanced AI Models</h4>
+                  <p>State-of-the-art Flux, Turbo, and Kontext models</p>
                 </div>
                 <div className="feature-item">
                   <div className="feature-icon">📐</div>
-                  <h4>Custom Dimensions</h4>
-                  <p>Perfect size for any purpose</p>
+                  <h4>Flexible Dimensions</h4>
+                  <p>Custom sizing for any creative project</p>
                 </div>
                 <div className="feature-item">
                   <div className="feature-icon">🎯</div>
-                  <h4>Seed Control</h4>
-                  <p>Reproducible results</p>
+                  <h4>Precision Control</h4>
+                  <p>Reproducible results with seed management</p>
                 </div>
                 <div className="feature-item">
                   <div className="feature-icon">⭐</div>
-                  <h4>High Quality</h4>
-                  <p>Professional grade output</p>
+                  <h4>Professional Quality</h4>
+                  <p>High-resolution, commercial-grade output</p>
                 </div>
               </div>
             </div>
           </div>
 
           <div className="footer-bottom">
-            <p>Made by Arjun</p>
+            <div className="footer-links">
+              <div className="creator-info">
+                <p>
+                  © 2025 Visiora • Made by <strong>Arjun</strong>
+                </p>
+              </div>
+              <div className="tech-info">
+                <p>Powered by Pollinations AI • Built with React</p>
+              </div>
+            </div>
           </div>
         </div>
       </footer>

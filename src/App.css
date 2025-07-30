@@ -915,8 +915,46 @@ body {
 .footer-bottom {
   border-top: 1px solid var(--border-color);
   padding-top: 2rem;
-  text-align: center;
   color: var(--text-tertiary);
+}
+
+.footer-links {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 1rem;
+}
+
+.creator-info p {
+  margin: 0;
+  font-size: 0.95rem;
+}
+
+.creator-info strong {
+  color: var(--text-primary);
+  font-weight: 600;
+}
+
+.tech-info p {
+  margin: 0;
+  font-size: 0.9rem;
+  opacity: 0.8;
+}
+
+.brand-info .tagline {
+  margin-top: 0.5rem;
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
+
+/* Mobile footer adjustments */
+@media (max-width: 768px) {
+  .footer-links {
+    flex-direction: column;
+    text-align: center;
+    gap: 0.5rem;
+  }
 }
 
 /* Example Prompts Section */
