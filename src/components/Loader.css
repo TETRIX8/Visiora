@@ -311,6 +311,7 @@
   .generated-image {
     max-width: 90%;
     height: auto;
+    transform: scale(0.8); /* Scale down by 20% */
   }
 }
 
@@ -327,5 +328,6 @@
     border-radius: 8px;
     max-width: 85%;
     height: auto;
+    transform: scale(0.8); /* Scale down by 20% */
   }
 }
