@@ -51,6 +51,27 @@ const HomePage = () => {
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Load history from localStorage on component mount
+  useEffect(() => {
+    const savedHistory = localStorage.getItem("visiora-history");
+    if (savedHistory) {
+      try {
+        const parsedHistory = JSON.parse(savedHistory);
+        setHistory(parsedHistory);
+      } catch (error) {
+        console.error("Error loading history from localStorage:", error);
+        localStorage.removeItem("visiora-history"); // Clear corrupted data
+      }
+    }
+  }, []);
+
+  // Save history to localStorage whenever it changes
+  useEffect(() => {
+    if (history.length > 0) {
+      localStorage.setItem("visiora-history", JSON.stringify(history));
+    }
+  }, [history]);
+
   useEffect(() => {
     // Apply theme to document
     document.documentElement.setAttribute(
@@ -164,7 +185,7 @@ const HomePage = () => {
       const finalSeed = seed ? seed : Math.floor(Math.random() * 1000);
 
       // Build API URL
-      let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${finalWidth}&height=${finalHeight}&model=${selectedModel}&seed=${finalSeed}`;
+      let apiUrl = `https://image.pollinations.ai/prompt/${encodedPrompt}?width=${finalWidth}&height=${finalHeight}&model=${selectedModel}&enhance=true&seed=${finalSeed}`;
 
       if (removeWatermark) {
         apiUrl += "&nologo=true";
@@ -255,7 +276,22 @@ const HomePage = () => {
   // Handle delete history item
   const handleDeleteHistoryItem = (itemId, event) => {
     event.stopPropagation(); // Prevent triggering the item click
-    setHistory((prev) => prev.filter((item) => item.id !== itemId));
+    const updatedHistory = history.filter((item) => item.id !== itemId);
+    setHistory(updatedHistory);
+
+    // Update localStorage - if empty, remove the key
+    if (updatedHistory.length === 0) {
+      localStorage.removeItem("visiora-history");
+    } else {
+      localStorage.setItem("visiora-history", JSON.stringify(updatedHistory));
+    }
+  };
+
+  // Handle clear all history
+  const handleClearAllHistory = () => {
+    setHistory([]);
+    localStorage.removeItem("visiora-history");
+    setShowHistory(false);
   };
 
   return (
@@ -331,12 +367,21 @@ const HomePage = () => {
                     <div className="history-dropdown">
                       <div className="history-header">
                         <h4>Recent Generations</h4>
-                        <button
-                          className="close-history"
-                          onClick={() => setShowHistory(false)}
-                        >
-                          ✕
-                        </button>
+                        <div className="history-actions">
+                          <button
+                            className="clear-all-btn"
+                            onClick={handleClearAllHistory}
+                            title="Clear all history"
+                          >
+                            🗑️ Clear All
+                          </button>
+                          <button
+                            className="close-history"
+                            onClick={() => setShowHistory(false)}
+                          >
+                            ✕
+                          </button>
+                        </div>
                       </div>
                       <div className="history-list">
                         {history.map((item) => (
