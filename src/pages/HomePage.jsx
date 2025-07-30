@@ -41,8 +41,11 @@ const HomePage = () => {
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
 
-  // Theme state
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  // Theme state - load from localStorage or default to dark
+  const [isDarkMode, setIsDarkMode] = useState(() => {
+    const savedTheme = localStorage.getItem("visiora-theme");
+    return savedTheme ? JSON.parse(savedTheme) : true;
+  });
 
   // Progress state
   const [progress, setProgress] = useState(0);
@@ -71,6 +74,11 @@ const HomePage = () => {
       localStorage.setItem("visiora-history", JSON.stringify(history));
     }
   }, [history]);
+
+  // Save theme to localStorage whenever it changes
+  useEffect(() => {
+    localStorage.setItem("visiora-theme", JSON.stringify(isDarkMode));
+  }, [isDarkMode]);
 
   useEffect(() => {
     // Apply theme to document
@@ -440,6 +448,32 @@ const HomePage = () => {
                 </div>
               </div>
 
+              <div className="option-group">
+                <label className="label">AI Model</label>
+                <select
+                  value={selectedModel}
+                  onChange={(e) => setSelectedModel(e.target.value)}
+                  className="select-input"
+                >
+                  {models.map((model) => (
+                    <option key={model.value} value={model.value}>
+                      {model.label}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="option-group">
+                <label className="label">Seed (optional)</label>
+                <input
+                  type="text"
+                  value={seed}
+                  onChange={(e) => setSeed(e.target.value)}
+                  placeholder="Random if empty"
+                  className="text-input"
+                />
+              </div>
+
               {/* Manual dimensions inputs - only show when Manual is selected */}
               {selectedShape === "manual" && (
                 <>
@@ -474,32 +508,6 @@ const HomePage = () => {
                   </div>
                 </>
               )}
-
-              <div className="option-group">
-                <label className="label">AI Model</label>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
-                  className="select-input"
-                >
-                  {models.map((model) => (
-                    <option key={model.value} value={model.value}>
-                      {model.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="option-group">
-                <label className="label">Seed (optional)</label>
-                <input
-                  type="text"
-                  value={seed}
-                  onChange={(e) => setSeed(e.target.value)}
-                  placeholder="Random if empty"
-                  className="text-input"
-                />
-              </div>
 
               <div className="option-group checkbox-group">
                 <label className="checkbox-label">
@@ -672,7 +680,7 @@ const HomePage = () => {
           </div>
 
           <div className="footer-bottom">
-            <p>&copy; 2025 Visiora. Powered by Pollinations AI.</p>
+            <p>Made by Arjun</p>
           </div>
         </div>
       </footer>
