@@ -292,7 +292,7 @@ const HomePage = () => {
 
       // Prompt engineer instructions
       const system =
-        "You are a professional prompt engineer for generative AI images. Given a user’s base idea, elaborate and enhance the prompt by preserving the original subject and context, adding vivid artistic details, improving clarity, storytelling, and immersion, including realistic textures, dynamic lighting, depth, and color harmony, specifying atmosphere and composition style, and ensuring final output is suitable for 8K ultra-high-resolution rendering. Output only the enhanced prompt as plain text.";
+        "You are a professional prompt engineer for generative AI images. Given a users base idea, elaborate and enhance the prompt by preserving the original subject and context, adding vivid artistic details, improving clarity, storytelling, and immersion, including realistic textures, dynamic lighting, depth, and color harmony, specifying atmosphere and composition style, and ensuring final output is suitable for 8K ultra-high-resolution rendering. Output only the enhanced prompt as plain text.";
 
       // Try the main API first with new format
       let url = `https://text.pollinations.ai/${encodeURIComponent(
@@ -361,47 +361,63 @@ const HomePage = () => {
       if (
         enhancedText &&
         enhancedText.trim() &&
-        enhancedText.length > inputPrompt.length / 2
+        enhancedText.trim().length > 15 && // Minimum reasonable length
+        enhancedText.trim() !== inputPrompt.trim() // Must be different from original
       ) {
         setEnhancedPrompt(enhancedText);
         setInputPrompt(enhancedText); // Update the main prompt with enhanced version
       } else {
-        throw new Error("Enhanced prompt is too short or invalid");
-      }
-    } catch (error) {
-      console.error("Error enhancing prompt:", error);
-
-      // Try a simple local enhancement as fallback
-      try {
+        // If enhancement is same as original or too short, try local enhancement
+        console.log(
+          "API enhancement not satisfactory, trying local enhancement..."
+        );
         const localEnhanced = enhancePromptLocally(inputPrompt.trim());
         if (localEnhanced && localEnhanced !== inputPrompt.trim()) {
           setEnhancedPrompt(localEnhanced);
           setInputPrompt(localEnhanced);
-          alert(
-            "API unavailable, used basic enhancement instead. Try generating!"
-          );
-          return;
+        } else {
+          throw new Error("Unable to enhance the prompt effectively");
         }
-      } catch (localError) {
-        console.error("Local enhancement also failed:", localError);
+      }
+    } catch (error) {
+      console.error("Error enhancing prompt:", error);
+
+      // Try a simple local enhancement as fallback if not already attempted
+      if (!error.message.includes("Unable to enhance")) {
+        try {
+          const localEnhanced = enhancePromptLocally(inputPrompt.trim());
+          if (localEnhanced && localEnhanced !== inputPrompt.trim()) {
+            setEnhancedPrompt(localEnhanced);
+            setInputPrompt(localEnhanced);
+            alert(
+              "AI enhancement failed, applied basic improvements instead. Try generating!"
+            );
+            return;
+          }
+        } catch (localError) {
+          console.error("Local enhancement also failed:", localError);
+        }
       }
 
       // Provide more specific error messages
       let errorMessage = "Error enhancing prompt: ";
-      if (error.message.includes("HTML error page")) {
+      if (
+        error.message.includes("HTML error page") ||
+        error.message.includes("Both API endpoints")
+      ) {
         errorMessage +=
-          "The AI service is temporarily unavailable. Please try again later.";
+          "AI service is temporarily unavailable. Please try a shorter or simpler prompt.";
       } else if (error.message.includes("Invalid response format")) {
         errorMessage +=
-          "Received invalid response from AI service. Please try again.";
-      } else if (error.message.includes("too short")) {
+          "Received invalid response. Please try rephrasing your prompt.";
+      } else if (error.message.includes("Unable to enhance")) {
         errorMessage +=
-          "The enhanced prompt was not satisfactory. Please try rephrasing your prompt.";
-      } else if (error.message.includes("Both API endpoints")) {
+          "Your prompt may already be well-detailed. Try generating as-is or rephrase it.";
+      } else if (error.message.includes("HTTP error")) {
         errorMessage +=
-          "AI enhancement service is currently down. Please try again later.";
+          "Connection issue with AI service. Please try again in a moment.";
       } else {
-        errorMessage += error.message;
+        errorMessage += "Please try again with a different prompt.";
       }
 
       alert(errorMessage);
@@ -412,7 +428,7 @@ const HomePage = () => {
 
   // Simple local enhancement fallback
   const enhancePromptLocally = (prompt) => {
-    if (!prompt || prompt.length < 5) return prompt;
+    if (!prompt || prompt.length < 3) return prompt;
 
     const enhancementPhrases = [
       "highly detailed",
@@ -431,20 +447,30 @@ const HomePage = () => {
     let enhanced = prompt;
     const lowerPrompt = prompt.toLowerCase();
 
-    if (!lowerPrompt.includes("detailed")) {
+    // Only add if the prompt doesn't already have these elements
+    if (!lowerPrompt.includes("detailed") && !lowerPrompt.includes("detail")) {
       enhanced += ", highly detailed";
     }
     if (
       !lowerPrompt.includes("cinematic") &&
-      !lowerPrompt.includes("lighting")
+      !lowerPrompt.includes("lighting") &&
+      !lowerPrompt.includes("light")
     ) {
       enhanced += ", cinematic lighting";
     }
     if (
       !lowerPrompt.includes("quality") &&
-      !lowerPrompt.includes("professional")
+      !lowerPrompt.includes("professional") &&
+      !lowerPrompt.includes("8k") &&
+      !lowerPrompt.includes("resolution")
     ) {
       enhanced += ", professional quality";
+    }
+    if (
+      !lowerPrompt.includes("composition") &&
+      !lowerPrompt.includes("artistic")
+    ) {
+      enhanced += ", artistic composition";
     }
 
     return enhanced;
