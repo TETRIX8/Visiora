@@ -54,6 +54,10 @@ const HomePage = () => {
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Enhance prompt state
+  const [isEnhancing, setIsEnhancing] = useState(false);
+  const [enhancedPrompt, setEnhancedPrompt] = useState("");
+
   // Load history from localStorage on component mount
   useEffect(() => {
     const savedHistory = localStorage.getItem("visiora-history");
@@ -274,6 +278,178 @@ const HomePage = () => {
     setInputPrompt(randomPrompt);
   };
 
+  // Handle enhance prompt
+  const handleEnhancePrompt = async () => {
+    if (!inputPrompt.trim()) {
+      alert("Please enter a prompt first!");
+      return;
+    }
+
+    setIsEnhancing(true);
+    try {
+      // Generate random seed for variation
+      const seed = Math.floor(Math.random() * 1000000);
+
+      // Prompt engineer instructions
+      const system =
+        "You are a professional prompt engineer for generative AI images. Given a user’s base idea, elaborate and enhance the prompt by preserving the original subject and context, adding vivid artistic details, improving clarity, storytelling, and immersion, including realistic textures, dynamic lighting, depth, and color harmony, specifying atmosphere and composition style, and ensuring final output is suitable for 8K ultra-high-resolution rendering. Output only the enhanced prompt as plain text.";
+
+      // Try the main API first with new format
+      let url = `https://text.pollinations.ai/${encodeURIComponent(
+        system + ": " + inputPrompt.trim()
+      )}`;
+
+      let response = await fetch(url);
+      let responseText = "";
+      let enhancedText = "";
+
+      // Check if response is ok
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      responseText = await response.text();
+
+      // Check if response is HTML (error page)
+      if (
+        responseText.trim().toLowerCase().startsWith("<!doctype") ||
+        responseText.trim().toLowerCase().startsWith("<html")
+      ) {
+        // Try alternative approach with simpler format
+        console.log("Main API returned HTML, trying alternative approach...");
+        url = `https://text.pollinations.ai/${encodeURIComponent(
+          "Enhance this image prompt with more details, lighting, and artistic elements: " +
+            inputPrompt.trim()
+        )}`;
+
+        response = await fetch(url);
+        if (!response.ok) {
+          throw new Error(
+            `Alternative API also failed! status: ${response.status}`
+          );
+        }
+        responseText = await response.text();
+
+        // Check again for HTML
+        if (
+          responseText.trim().toLowerCase().startsWith("<!doctype") ||
+          responseText.trim().toLowerCase().startsWith("<html")
+        ) {
+          throw new Error("Both API endpoints returned HTML error pages");
+        }
+      }
+
+      // Try to parse as JSON, if it fails, use the text directly
+      try {
+        const data = JSON.parse(responseText);
+        enhancedText =
+          data.response || data.text || data.content || responseText;
+      } catch (jsonError) {
+        // If it's not JSON, check if it's a valid text response
+        if (
+          responseText &&
+          responseText.trim().length > 10 &&
+          !responseText.includes("<html") &&
+          !responseText.includes("<!DOCTYPE")
+        ) {
+          enhancedText = responseText.trim();
+        } else {
+          throw new Error("Invalid response format received from API");
+        }
+      }
+
+      if (
+        enhancedText &&
+        enhancedText.trim() &&
+        enhancedText.length > inputPrompt.length / 2
+      ) {
+        setEnhancedPrompt(enhancedText);
+        setInputPrompt(enhancedText); // Update the main prompt with enhanced version
+      } else {
+        throw new Error("Enhanced prompt is too short or invalid");
+      }
+    } catch (error) {
+      console.error("Error enhancing prompt:", error);
+
+      // Try a simple local enhancement as fallback
+      try {
+        const localEnhanced = enhancePromptLocally(inputPrompt.trim());
+        if (localEnhanced && localEnhanced !== inputPrompt.trim()) {
+          setEnhancedPrompt(localEnhanced);
+          setInputPrompt(localEnhanced);
+          alert(
+            "API unavailable, used basic enhancement instead. Try generating!"
+          );
+          return;
+        }
+      } catch (localError) {
+        console.error("Local enhancement also failed:", localError);
+      }
+
+      // Provide more specific error messages
+      let errorMessage = "Error enhancing prompt: ";
+      if (error.message.includes("HTML error page")) {
+        errorMessage +=
+          "The AI service is temporarily unavailable. Please try again later.";
+      } else if (error.message.includes("Invalid response format")) {
+        errorMessage +=
+          "Received invalid response from AI service. Please try again.";
+      } else if (error.message.includes("too short")) {
+        errorMessage +=
+          "The enhanced prompt was not satisfactory. Please try rephrasing your prompt.";
+      } else if (error.message.includes("Both API endpoints")) {
+        errorMessage +=
+          "AI enhancement service is currently down. Please try again later.";
+      } else {
+        errorMessage += error.message;
+      }
+
+      alert(errorMessage);
+    } finally {
+      setIsEnhancing(false);
+    }
+  };
+
+  // Simple local enhancement fallback
+  const enhancePromptLocally = (prompt) => {
+    if (!prompt || prompt.length < 5) return prompt;
+
+    const enhancementPhrases = [
+      "highly detailed",
+      "professional photography",
+      "cinematic lighting",
+      "8k resolution",
+      "vibrant colors",
+      "sharp focus",
+      "artistic composition",
+      "dramatic shadows",
+      "photorealistic",
+      "studio quality",
+    ];
+
+    // Add some enhancement phrases if they're not already present
+    let enhanced = prompt;
+    const lowerPrompt = prompt.toLowerCase();
+
+    if (!lowerPrompt.includes("detailed")) {
+      enhanced += ", highly detailed";
+    }
+    if (
+      !lowerPrompt.includes("cinematic") &&
+      !lowerPrompt.includes("lighting")
+    ) {
+      enhanced += ", cinematic lighting";
+    }
+    if (
+      !lowerPrompt.includes("quality") &&
+      !lowerPrompt.includes("professional")
+    ) {
+      enhanced += ", professional quality";
+    }
+
+    return enhanced;
+  };
+
   // Handle history item click
   const handleHistoryItemClick = (historyItem) => {
     setInputPrompt(historyItem.prompt);
@@ -350,8 +526,24 @@ const HomePage = () => {
               />
             </div>
 
-            {/* Confused Button - Outside input box */}
+            {/* Enhance Prompt and Confused Buttons */}
             <div className="confused-section">
+              <button
+                className="enhance-btn"
+                onClick={handleEnhancePrompt}
+                disabled={isEnhancing || !inputPrompt.trim()}
+                title="Enhance your prompt with AI"
+              >
+                {isEnhancing ? (
+                  <>
+                    <div className="spinner"></div>
+                    Enhancing...
+                  </>
+                ) : (
+                  <>✨ Enhance Prompt</>
+                )}
+              </button>
+
               <button
                 className="confused-btn"
                 onClick={handleConfusedClick}
@@ -359,72 +551,6 @@ const HomePage = () => {
               >
                 🤔 Confused?
               </button>
-
-              {/* History Dropdown */}
-              {history.length > 0 && (
-                <div className="history-section">
-                  <button
-                    className="history-btn"
-                    onClick={() => setShowHistory(!showHistory)}
-                    title="View generation history"
-                  >
-                    📜 History ({history.length})
-                  </button>
-
-                  {showHistory && (
-                    <div className="history-dropdown">
-                      <div className="history-header">
-                        <h4>Recent Generations</h4>
-                        <div className="history-actions">
-                          <button
-                            className="clear-all-btn"
-                            onClick={handleClearAllHistory}
-                            title="Clear all history"
-                          >
-                            🗑️ Clear All
-                          </button>
-                          <button
-                            className="close-history"
-                            onClick={() => setShowHistory(false)}
-                          >
-                            ✕
-                          </button>
-                        </div>
-                      </div>
-                      <div className="history-list">
-                        {history.map((item) => (
-                          <div
-                            key={item.id}
-                            className="history-item"
-                            onClick={() => handleHistoryItemClick(item)}
-                          >
-                            <div className="history-image">
-                              <img src={item.imageUrl} alt="Generated" />
-                            </div>
-                            <div className="history-content">
-                              <p className="history-prompt">"{item.prompt}"</p>
-                              <div className="history-meta">
-                                <span>{item.model}</span>
-                                <span>{item.dimensions}</span>
-                                <span>{item.timestamp}</span>
-                              </div>
-                            </div>
-                            <button
-                              className="delete-history-btn"
-                              onClick={(e) =>
-                                handleDeleteHistoryItem(item.id, e)
-                              }
-                              title="Delete from history"
-                            >
-                              🗑️
-                            </button>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-                </div>
-              )}
             </div>
 
             {/* Options Grid */}
@@ -548,6 +674,70 @@ const HomePage = () => {
                     style={{ width: `${progress}%` }}
                   ></div>
                 </div>
+              </div>
+            )}
+
+            {/* History Section - Moved below generate button */}
+            {history.length > 0 && (
+              <div className="history-section-bottom">
+                <button
+                  className="history-btn"
+                  onClick={() => setShowHistory(!showHistory)}
+                  title="View generation history"
+                >
+                  📜 History ({history.length})
+                </button>
+
+                {showHistory && (
+                  <div className="history-dropdown">
+                    <div className="history-header">
+                      <h4>Recent Generations</h4>
+                      <div className="history-actions">
+                        <button
+                          className="clear-all-btn"
+                          onClick={handleClearAllHistory}
+                          title="Clear all history"
+                        >
+                          🗑️ Clear All
+                        </button>
+                        <button
+                          className="close-history"
+                          onClick={() => setShowHistory(false)}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                    <div className="history-list">
+                      {history.map((item) => (
+                        <div
+                          key={item.id}
+                          className="history-item"
+                          onClick={() => handleHistoryItemClick(item)}
+                        >
+                          <div className="history-image">
+                            <img src={item.imageUrl} alt="Generated" />
+                          </div>
+                          <div className="history-content">
+                            <p className="history-prompt">"{item.prompt}"</p>
+                            <div className="history-meta">
+                              <span>{item.model}</span>
+                              <span>{item.dimensions}</span>
+                              <span>{item.timestamp}</span>
+                            </div>
+                          </div>
+                          <button
+                            className="delete-history-btn"
+                            onClick={(e) => handleDeleteHistoryItem(item.id, e)}
+                            title="Delete from history"
+                          >
+                            🗑️
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
             )}
           </div>
