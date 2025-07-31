@@ -2,6 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import ImageDisplay from "../components/ImageDisplay";
+import TabNavigation from "../components/TabNavigation";
+import GenerateTab from "../components/GenerateTab";
+import EnhanceTab from "../components/EnhanceTab";
+import HistoryTab from "../components/HistoryTab";
+import TypewriterEffect from "../components/TypewriterEffect";
+import { generateRandomPrompt } from "../api/pollinationService";
 
 // Import logo
 import logo from "../assets/logo/logo.jpg";
@@ -54,9 +60,15 @@ const HomePage = () => {
   const [history, setHistory] = useState([]);
   const [showHistory, setShowHistory] = useState(false);
 
+  // Active tab state
+  const [activeTab, setActiveTab] = useState("generate");
+
   // Enhance prompt state
   const [isEnhancing, setIsEnhancing] = useState(false);
   const [enhancedPrompt, setEnhancedPrompt] = useState("");
+
+  // Random prompt generation state
+  const [isGeneratingRandom, setIsGeneratingRandom] = useState(false);
 
   // Load history from localStorage on component mount
   useEffect(() => {
@@ -276,6 +288,22 @@ const HomePage = () => {
   const handleConfusedClick = () => {
     const randomPrompt = getRandomPrompt();
     setInputPrompt(randomPrompt);
+  };
+
+  // Handle AI-powered random prompt generation
+  const handleGenerateRandomPrompt = async (category = "") => {
+    setIsGeneratingRandom(true);
+    try {
+      const randomPrompt = await generateRandomPrompt(category);
+      setInputPrompt(randomPrompt);
+    } catch (error) {
+      console.error("Error generating random prompt:", error);
+      // Fall back to local random prompt
+      const fallbackPrompt = getRandomPrompt();
+      setInputPrompt(fallbackPrompt);
+    } finally {
+      setIsGeneratingRandom(false);
+    }
   };
 
   // Handle enhance prompt
@@ -528,7 +556,7 @@ const HomePage = () => {
         <div className="container">
           <h2 className="hero-title">Create Stunning Images with AI</h2>
           <p className="hero-subtitle">
-            Where Every Image Radiates an Aura of Imagination
+            <TypewriterEffect />
           </p>
         </div>
       </section>
@@ -536,280 +564,69 @@ const HomePage = () => {
       {/* Main Content */}
       <main className="main-content">
         <div className="container">
-          {/* Input Section */}
-          <div className="input-section">
-            <div className="prompt-area">
-              <label htmlFor="prompt" className="label">
-                Describe your image
-              </label>
-              <textarea
-                id="prompt"
-                value={inputPrompt}
-                onChange={(e) => setInputPrompt(e.target.value)}
-                placeholder="e.g., A majestic dragon soaring through a cloudy sunset sky, digital art style"
-                rows="4"
-                className="prompt-input"
+          {/* Tab Navigation */}
+          <TabNavigation
+            activeTab={activeTab}
+            setActiveTab={setActiveTab}
+            historyCount={history.length}
+          />
+
+          {/* Tab Content */}
+          <div className="tab-content">
+            {activeTab === "generate" && (
+              <GenerateTab
+                key="generate"
+                inputPrompt={inputPrompt}
+                setInputPrompt={setInputPrompt}
+                imageUrl={imageUrl}
+                isLoading={isLoading}
+                imageLoaded={imageLoaded}
+                error={error}
+                progress={progress}
+                selectedModel={selectedModel}
+                setSelectedModel={setSelectedModel}
+                selectedShape={selectedShape}
+                setSelectedShape={setSelectedShape}
+                seed={seed}
+                setSeed={setSeed}
+                removeWatermark={removeWatermark}
+                setRemoveWatermark={setRemoveWatermark}
+                width={width}
+                height={height}
+                setWidth={setWidth}
+                setHeight={setHeight}
+                shapes={shapes}
+                models={models}
+                examplePrompts={examplePrompts}
+                handleGenerateClick={handleGenerateClick}
+                handleImageLoadComplete={handleImageLoadComplete}
+                handleImageLoadError={handleImageLoadError}
+                handleExampleClick={handleExampleClick}
+                handleConfusedClick={handleConfusedClick}
+                handleGenerateRandomPrompt={handleGenerateRandomPrompt}
+                isGeneratingRandom={isGeneratingRandom}
               />
-            </div>
-
-            {/* Enhance Prompt and Confused Buttons */}
-            <div className="confused-section">
-              <button
-                className="enhance-btn"
-                onClick={handleEnhancePrompt}
-                disabled={isEnhancing || !inputPrompt.trim()}
-                title="Enhance your prompt with AI"
-              >
-                {isEnhancing ? (
-                  <>
-                    <div className="spinner"></div>
-                    Enhancing...
-                  </>
-                ) : (
-                  <>✨ Enhance Prompt</>
-                )}
-              </button>
-
-              <button
-                className="confused-btn"
-                onClick={handleConfusedClick}
-                title="Get a random creative prompt"
-              >
-                🤔 Confused?
-              </button>
-            </div>
-
-            {/* Options Grid */}
-            <div className="options-grid">
-              <div className="option-group">
-                <label className="label">Choose Shape</label>
-                <div className="shape-selector">
-                  {Object.entries(shapes).map(([key, shape]) => (
-                    <button
-                      key={key}
-                      className={`shape-btn ${
-                        selectedShape === key ? "active" : ""
-                      }`}
-                      onClick={() => setSelectedShape(key)}
-                      title={shape.label}
-                    >
-                      <div className={`shape-preview shape-${key}`}></div>
-                      <span>{shape.label}</span>
-                    </button>
-                  ))}
-                </div>
-              </div>
-
-              <div className="option-group">
-                <label className="label">AI Model</label>
-                <select
-                  value={selectedModel}
-                  onChange={(e) => setSelectedModel(e.target.value)}
-                  className="select-input"
-                >
-                  {models.map((model) => (
-                    <option key={model.value} value={model.value}>
-                      {model.label}
-                    </option>
-                  ))}
-                </select>
-              </div>
-
-              <div className="option-group">
-                <label className="label">Seed (optional)</label>
-                <input
-                  type="text"
-                  value={seed}
-                  onChange={(e) => setSeed(e.target.value)}
-                  placeholder="Random if empty"
-                  className="text-input"
-                />
-              </div>
-
-              {/* Manual dimensions inputs - only show when Manual is selected */}
-              {selectedShape === "manual" && (
-                <>
-                  <div className="option-group">
-                    <label className="label">Width</label>
-                    <input
-                      type="number"
-                      value={width}
-                      onChange={(e) =>
-                        setWidth(parseInt(e.target.value) || 1024)
-                      }
-                      min="256"
-                      max="2048"
-                      step="64"
-                      className="number-input"
-                    />
-                  </div>
-
-                  <div className="option-group">
-                    <label className="label">Height</label>
-                    <input
-                      type="number"
-                      value={height}
-                      onChange={(e) =>
-                        setHeight(parseInt(e.target.value) || 1024)
-                      }
-                      min="256"
-                      max="2048"
-                      step="64"
-                      className="number-input"
-                    />
-                  </div>
-                </>
-              )}
-
-              <div className="option-group checkbox-group">
-                <label className="checkbox-label">
-                  <input
-                    type="checkbox"
-                    checked={removeWatermark}
-                    onChange={(e) => setRemoveWatermark(e.target.checked)}
-                    className="checkbox-input"
-                  />
-                  <span className="checkmark"></span>
-                  Remove Watermark
-                </label>
-              </div>
-            </div>
-
-            {/* Generate Button */}
-            <button
-              onClick={handleGenerateClick}
-              disabled={isLoading || !inputPrompt.trim()}
-              className="generate-btn"
-            >
-              {isLoading ? (
-                <>
-                  <div className="spinner"></div>
-                  Generating... {Math.round(progress)}%
-                </>
-              ) : (
-                <>✨ Generate Image</>
-              )}
-            </button>
-
-            {/* Progress Bar */}
-            {isLoading && (
-              <div className="progress-container">
-                <div className="progress-bar">
-                  <div
-                    className="progress-fill"
-                    style={{ width: `${progress}%` }}
-                  ></div>
-                </div>
-              </div>
             )}
 
-            {/* History Section - Moved below generate button */}
-            {history.length > 0 && (
-              <div className="history-section-bottom">
-                <button
-                  className="history-btn"
-                  onClick={() => setShowHistory(!showHistory)}
-                  title="View generation history"
-                >
-                  📜 History ({history.length})
-                </button>
-
-                {showHistory && (
-                  <div className="history-dropdown">
-                    <div className="history-header">
-                      <h4>Recent Generations</h4>
-                      <div className="history-actions">
-                        <button
-                          className="clear-all-btn"
-                          onClick={handleClearAllHistory}
-                          title="Clear all history"
-                        >
-                          🗑️ Clear All
-                        </button>
-                        <button
-                          className="close-history"
-                          onClick={() => setShowHistory(false)}
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    </div>
-                    <div className="history-list">
-                      {history.map((item) => (
-                        <div
-                          key={item.id}
-                          className="history-item"
-                          onClick={() => handleHistoryItemClick(item)}
-                        >
-                          <div className="history-image">
-                            <img src={item.imageUrl} alt="Generated" />
-                          </div>
-                          <div className="history-content">
-                            <p className="history-prompt">"{item.prompt}"</p>
-                            <div className="history-meta">
-                              <span>{item.model}</span>
-                              <span>{item.dimensions}</span>
-                              <span>{item.timestamp}</span>
-                            </div>
-                          </div>
-                          <button
-                            className="delete-history-btn"
-                            onClick={(e) => handleDeleteHistoryItem(item.id, e)}
-                            title="Delete from history"
-                          >
-                            🗑️
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                )}
-              </div>
+            {activeTab === "enhance" && (
+              <EnhanceTab
+                key="enhance"
+                inputPrompt={inputPrompt}
+                setInputPrompt={setInputPrompt}
+                isEnhancing={isEnhancing}
+                handleEnhancePrompt={handleEnhancePrompt}
+              />
             )}
-          </div>
 
-          {/* Image Display */}
-          <div className="result-section">
-            {!imageUrl && isLoading ? (
-              // No image exists - show default loader
-              <div className="image-container">
-                <ImageDisplay
-                  imageUrl={null}
-                  isLoading={isLoading}
-                  error={error}
-                  shape={selectedShape}
-                  onImageLoad={handleImageLoadComplete}
-                  onImageError={handleImageLoadError}
-                  showInternalLoader={true}
-                />
-              </div>
-            ) : (
-              // Image exists or no loading - show with potential blur
-              <>
-                <div
-                  className={`image-container ${
-                    isLoading && imageUrl ? "loading-blur" : ""
-                  }`}
-                >
-                  <ImageDisplay
-                    imageUrl={imageUrl}
-                    isLoading={false}
-                    error={error}
-                    shape={selectedShape}
-                    onImageLoad={handleImageLoadComplete}
-                    onImageError={handleImageLoadError}
-                    showInternalLoader={false}
-                  />
-                </div>
-                {isLoading && imageUrl && (
-                  <div className="loading-overlay">
-                    <div className="loading-content">
-                      <div className="spinner"></div>
-                      <p>Generating... {Math.round(progress)}%</p>
-                    </div>
-                  </div>
-                )}
-              </>
+            {activeTab === "history" && (
+              <HistoryTab
+                key="history"
+                history={history}
+                setInputPrompt={setInputPrompt}
+                setActiveTab={setActiveTab}
+                handleDeleteHistoryItem={handleDeleteHistoryItem}
+                handleClearAllHistory={handleClearAllHistory}
+              />
             )}
           </div>
         </div>

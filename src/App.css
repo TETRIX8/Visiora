@@ -1035,6 +1035,9 @@ body {
   cursor: pointer;
   transition: var(--transition);
   transform: translateY(0);
+  display: flex;
+  flex-direction: column;
+  width: 100%;
 }
 
 .example-card:hover {
@@ -1045,15 +1048,21 @@ body {
 
 .example-image {
   position: relative;
-  height: 200px;
+  height: 280px;
   overflow: hidden;
+  background: var(--bg-tertiary);
+  width: 100%;
+  border-radius: var(--border-radius) var(--border-radius) 0 0;
 }
 
 .example-image img {
-  width: 100%;
-  height: 100%;
+  width: 100% !important;
+  height: 100% !important;
   object-fit: cover;
   transition: var(--transition);
+  display: block;
+  border: none;
+  outline: none;
 }
 
 .image-error-placeholder {
@@ -1337,4 +1346,56 @@ html {
 .hero-title,
 .hero-subtitle {
   animation: fadeIn 1s ease-out;
+}
+
+/* Tab Content Styles */
+.tab-content {
+  min-height: 500px;
+  background: var(--bg-card);
+  border-radius: var(--border-radius-lg);
+  border: 1px solid var(--border-color);
+  overflow: hidden;
+  position: relative;
+}
+
+.tab-content > div {
+  height: 100%;
+  animation: slideInFromRight 0.8s cubic-bezier(0.23, 1, 0.32, 1);
+  opacity: 0;
+  transform: translateX(50px) translateY(30px) scale(0.9);
+  animation-fill-mode: forwards;
+}
+
+/* Enhanced slide-in animation for tab content with dramatic entrance */
+@keyframes slideInFromRight {
+  0% {
+    opacity: 0;
+    transform: translateX(50px) translateY(30px) scale(0.9);
+    filter: blur(2px);
+  }
+  30% {
+    opacity: 0.3;
+    transform: translateX(25px) translateY(15px) scale(0.95);
+    filter: blur(1px);
+  }
+  60% {
+    opacity: 0.7;
+    transform: translateX(8px) translateY(5px) scale(0.98);
+    filter: blur(0.5px);
+  }
+  100% {
+    opacity: 1;
+    transform: translateX(0) translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+/* Fade in animation improvement */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
