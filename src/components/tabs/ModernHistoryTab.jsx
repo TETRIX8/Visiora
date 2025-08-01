@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
 import Button from "../ui/Button";
+import ExamplePromptsGrid from "../examples/ExamplePromptsGrid";
 import { cn } from "../../utils/cn";
 
 const ModernHistoryTab = memo(({
@@ -71,27 +72,32 @@ const ModernHistoryTab = memo(({
 
   if (history.length === 0) {
     return (
-      <div className="flex items-center justify-center min-h-[400px]">
-        <GlassCard className="text-center max-w-md mx-auto">
-          <div className="space-y-4">
-            <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto">
-              <History className="w-8 h-8 text-purple-400" />
+      <div className="space-y-8">
+        <div className="flex items-center justify-center min-h-[400px]">
+          <GlassCard className="text-center max-w-md mx-auto">
+            <div className="space-y-4">
+              <div className="w-16 h-16 rounded-full bg-gradient-to-br from-purple-500/20 to-pink-500/20 flex items-center justify-center mx-auto">
+                <History className="w-8 h-8 text-purple-400" />
+              </div>
+              <div>
+                <h3 className="text-xl font-semibold text-slate-800 dark:text-white mb-2">No History Yet</h3>
+                <p className="text-slate-600 dark:text-white/60 leading-relaxed">
+                  Your generated images will appear here. Start creating to build your collection!
+                </p>
+              </div>
+              <Button
+                onClick={() => setActiveTab("generate")}
+                variant="primary"
+                className="mt-4"
+              >
+                Start Creating
+              </Button>
             </div>
-            <div>
-              <h3 className="text-xl font-semibold text-white mb-2">No History Yet</h3>
-              <p className="text-white/60 leading-relaxed">
-                Your generated images will appear here. Start creating to build your collection!
-              </p>
-            </div>
-            <Button
-              onClick={() => setActiveTab("generate")}
-              variant="primary"
-              className="mt-4"
-            >
-              Start Creating
-            </Button>
-          </div>
-        </GlassCard>
+          </GlassCard>
+        </div>
+        
+        {/* Example Prompts Grid - Full Width */}
+        <ExamplePromptsGrid onPromptSelect={handleUsePrompt} />
       </div>
     );
   }
@@ -99,15 +105,15 @@ const ModernHistoryTab = memo(({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <GlassCard>
+      <GlassCard className="border-slate-300 dark:border-white/10">
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
-              <History className="w-5 h-5 text-white" />
+              <History className="w-5 h-5 text-slate-600 dark:text-white" />
             </div>
             <div>
-              <h3 className="text-xl font-semibold text-white">Your Creations</h3>
-              <p className="text-sm text-white/60">{history.length} images in your collection</p>
+              <h3 className="text-xl font-semibold text-slate-800 dark:text-white">Your Creations</h3>
+              <p className="text-sm text-slate-600 dark:text-white/60">{history.length} images in your collection</p>
             </div>
           </div>
           
@@ -143,11 +149,11 @@ const ModernHistoryTab = memo(({
               }}
               className="group"
             >
-              <GlassCard hover={false} className="overflow-hidden p-0">
+              <GlassCard hover={false} className="overflow-hidden p-0 border-slate-300 dark:border-white/10">
                 <div className="relative">
                   {/* Image */}
                   <div 
-                    className="relative aspect-square cursor-pointer overflow-hidden"
+                    className="relative aspect-[4/3.7] cursor-pointer overflow-hidden"
                     onClick={() => handleImageClick(item)}
                   >
                     <img
@@ -165,7 +171,7 @@ const ModernHistoryTab = memo(({
                         className="opacity-0 group-hover:opacity-100 transition-opacity duration-300"
                       >
                         <div className="w-12 h-12 rounded-full bg-white/20 backdrop-blur-md flex items-center justify-center">
-                          <Eye className="w-6 h-6 text-white" />
+                          <Eye className="w-6 h-6 text-slate-800 dark:text-white" />
                         </div>
                       </motion.div>
                     </div>
@@ -174,12 +180,12 @@ const ModernHistoryTab = memo(({
                   {/* Content */}
                   <div className="p-4 space-y-3">
                     {/* Prompt */}
-                    <p className="text-sm text-white/80 line-clamp-2 leading-relaxed">
+                    <p className="text-sm text-slate-700 dark:text-white/80 line-clamp-2 leading-relaxed">
                       {item.prompt}
                     </p>
 
                     {/* Metadata */}
-                    <div className="flex items-center gap-2 text-xs text-white/50">
+                    <div className="flex items-center gap-2 text-xs text-slate-600 dark:text-white/50">
                       <Calendar className="w-3 h-3" />
                       <span>{formatDate(item.timestamp)}</span>
                       <span>•</span>
@@ -249,7 +255,7 @@ const ModernHistoryTab = memo(({
                 {/* Close Button */}
                 <button
                   onClick={handleCloseModal}
-                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-white hover:bg-black/70 transition-colors"
+                  className="absolute top-4 right-4 z-10 w-10 h-10 rounded-full bg-black/50 backdrop-blur-md flex items-center justify-center text-slate-800 dark:text-white hover:bg-black/70 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>
@@ -266,27 +272,27 @@ const ModernHistoryTab = memo(({
                 {/* Details */}
                 <div className="p-6 space-y-4">
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Prompt</h3>
-                    <p className="text-white/80 leading-relaxed">{selectedImage.prompt}</p>
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Prompt</h3>
+                    <p className="text-slate-700 dark:text-white/80 leading-relaxed">{selectedImage.prompt}</p>
                   </div>
 
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4 text-sm">
                     <div className="space-y-1">
-                      <span className="text-white/50">Created</span>
-                      <p className="text-white/80">{formatDate(selectedImage.timestamp)}</p>
+                      <span className="text-slate-600 dark:text-white/50">Created</span>
+                      <p className="text-slate-700 dark:text-white/80">{formatDate(selectedImage.timestamp)}</p>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-white/50">Model</span>
-                      <p className="text-white/80">{selectedImage.model}</p>
+                      <span className="text-slate-600 dark:text-white/50">Model</span>
+                      <p className="text-slate-700 dark:text-white/80">{selectedImage.model}</p>
                     </div>
                     <div className="space-y-1">
-                      <span className="text-white/50">Aspect</span>
-                      <p className="text-white/80">{selectedImage.shape}</p>
+                      <span className="text-slate-600 dark:text-white/50">Aspect</span>
+                      <p className="text-slate-700 dark:text-white/80">{selectedImage.shape}</p>
                     </div>
                     {selectedImage.dimensions && (
                       <div className="space-y-1">
-                        <span className="text-white/50">Size</span>
-                        <p className="text-white/80">{selectedImage.dimensions}</p>
+                        <span className="text-slate-600 dark:text-white/50">Size</span>
+                        <p className="text-slate-700 dark:text-white/80">{selectedImage.dimensions}</p>
                       </div>
                     )}
                   </div>
@@ -344,8 +350,8 @@ const ModernHistoryTab = memo(({
                   </div>
                   
                   <div>
-                    <h3 className="text-lg font-semibold text-white mb-2">Delete Image?</h3>
-                    <p className="text-white/60">
+                    <h3 className="text-lg font-semibold text-slate-800 dark:text-white mb-2">Delete Image?</h3>
+                    <p className="text-slate-600 dark:text-white/60">
                       This action cannot be undone. The image will be permanently removed from your history.
                     </p>
                   </div>
@@ -372,6 +378,9 @@ const ModernHistoryTab = memo(({
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Example Prompts Grid - Full Width */}
+      <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
     </div>
   );
 });

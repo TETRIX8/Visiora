@@ -50,10 +50,10 @@ const Slider = ({
     <div className={`space-y-2 ${className}`}>
       {label && (
         <div className="flex justify-between items-center">
-          <label className="text-sm font-medium text-white/90">
+          <label className="text-sm font-medium text-slate-700 dark:text-white/90">
             {label}
           </label>
-          <span className="text-sm text-white/60 font-mono bg-white/10 px-2 py-1 rounded-md">
+          <span className="text-sm text-slate-600 dark:text-white/60 font-mono bg-slate-200/50 dark:bg-white/10 px-2 py-1 rounded-md">
             {value}
           </span>
         </div>

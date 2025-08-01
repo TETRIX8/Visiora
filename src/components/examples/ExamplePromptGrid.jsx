@@ -166,7 +166,7 @@ const ExamplePromptGrid = ({ onPromptSelect }) => {
           transition={{ duration: 0.6 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 backdrop-blur-md text-sm text-white/80 mb-6">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-200/50 dark:bg-white/10 border border-slate-300/50 dark:border-white/20 backdrop-blur-md text-sm text-slate-700 dark:text-white/80 mb-6">
             <Sparkles className="w-4 h-4" />
             <span>Get Inspired</span>
           </div>
@@ -250,14 +250,14 @@ const CategoryCard = ({ category, onPromptSelect, delay }) => {
       whileHover={{ y: -5 }}
     >
       {/* Header */}
-      <div className="p-4 border-b border-white/10">
+      <div className="p-4 border-b border-slate-300/30 dark:border-white/10">
         <div className="flex items-center gap-3">
           <div className={`w-10 h-10 rounded-full bg-gradient-to-r ${category.gradient} flex items-center justify-center text-xl shadow-lg`}>
             {category.emoji}
           </div>
           <div>
-            <h3 className="font-semibold text-white">{category.title}</h3>
-            <p className="text-xs text-white/60">{category.images.length} examples</p>
+            <h3 className="font-semibold text-slate-800 dark:text-white">{category.title}</h3>
+            <p className="text-xs text-slate-600 dark:text-white/60">{category.images.length} examples</p>
           </div>
         </div>
       </div>
@@ -307,7 +307,7 @@ const CategoryCard = ({ category, onPromptSelect, delay }) => {
               <motion.div
                 initial={{ scale: 0.8, opacity: 0 }}
                 whileHover={{ scale: 1, opacity: 1 }}
-                className="text-center text-white p-4"
+                className="text-center text-slate-800 dark:text-white p-4"
               >
                 <Copy className="w-8 h-8 mx-auto mb-2" />
                 <p className="text-sm font-medium">Click to use prompt</p>

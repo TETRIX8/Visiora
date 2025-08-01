@@ -2,7 +2,7 @@
 import React, { useState, useEffect, Suspense, lazy, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { generateRandomPrompt } from "./api/pollinationService";
-import useTheme from "./hooks/useTheme";
+import {useTheme} from "./hooks/useTheme";
 import useLocalStorage from "./hooks/useLocalStorage";
 
 // Layout Components
@@ -24,7 +24,7 @@ const TabLoader = React.memo(() => (
   <div className="flex items-center justify-center h-64">
     <div className="space-y-4 text-center">
       <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto" />
-      <p className="text-white/60 text-sm">Loading...</p>
+      <p className="text-slate-600 dark:text-white/60 text-sm">Loading...</p>
     </div>
   </div>
 ));
@@ -54,7 +54,7 @@ function App() {
   const [isGeneratingRandom, setIsGeneratingRandom] = useState(false);
 
   // Theme management
-  const { isDarkMode, setTheme } = useTheme();
+  const { isDarkMode, toggleTheme, setTheme } = useTheme();
 
   // Use custom localStorage hook for better performance
   const [history, setHistory, clearHistory] = useLocalStorage("visiora-history", []);
@@ -339,18 +339,18 @@ function App() {
   ]);
 
   return (
-    <div className="min-h-screen bg-slate-900 text-white font-display">
+    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-display transition-colors duration-300">
       {/* Animated Background */}
       <AnimatedBackground />
 
       {/* Header */}
-      <Header isDarkMode={isDarkMode} onThemeChange={setTheme} />
+      <Header isDarkMode={isDarkMode} onThemeChange={toggleTheme} />
 
       {/* Hero Section */}
       <Hero />
 
       {/* Main Content */}
-      <main className="relative z-10 pb-20">
+      <main className="relative z-10 pb-20 -translate-y-[30vh]">
         <div className="container mx-auto px-6">
           {/* Tab Navigation */}
           <div className="flex justify-center mb-12">

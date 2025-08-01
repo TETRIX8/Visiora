@@ -20,7 +20,7 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
           layoutId="activeTab"
           initial={false}
           animate={{
-            x: tabs.findIndex(tab => tab.id === activeTab) * (100 / tabs.length) + '%'
+            left: `${(tabs.findIndex(tab => tab.id === activeTab) / tabs.length) * 100}%`
           }}
           style={{ width: `${100 / tabs.length}%` }}
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
@@ -37,15 +37,15 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
                 onClick={() => onTabChange(tab.id)}
                 className={cn(
                   "relative flex flex-col items-center gap-1 px-4 py-3 text-sm font-medium transition-all duration-200",
-                  "hover:text-white focus:outline-none focus:text-white",
-                  isActive ? "text-white" : "text-white/60"
+                  "hover:text-slate-800 dark:hover:text-white focus:outline-none focus:text-slate-800 dark:focus:text-white",
+                  isActive ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-white/60"
                 )}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />
-                  {tab.badge && tab.badge > 0 && (
+                  {tab.badge !== undefined && (
                     <motion.div
                       className="absolute -top-2 -right-2 w-5 h-5 bg-red-500 rounded-full flex items-center justify-center text-xs font-bold text-white"
                       initial={{ scale: 0 }}

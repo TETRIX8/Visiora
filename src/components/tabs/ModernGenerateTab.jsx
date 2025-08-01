@@ -13,6 +13,7 @@ import {
 } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
 import Button from '../ui/Button';
+import ExamplePromptsGrid from '../examples/ExamplePromptsGrid';
 import Input from '../ui/Input';
 import { cn } from '../../utils/cn';
 
@@ -64,16 +65,17 @@ const ModernGenerateTab = memo(({
   };
 
   return (
-    <div className="grid lg:grid-cols-2 gap-8">
-      {/* Left Panel - Controls */}
-      <div className="space-y-6">
+    <div className="space-y-8">
+      <div className="grid lg:grid-cols-2 gap-8">
+        {/* Left Panel - Controls */}
+        <div className="space-y-6">
         {/* Prompt Section */}
-        <GlassCard>
+        <GlassCard className="border-slate-300 dark:border-white/10">
           <div className="space-y-4">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Sparkles className="w-5 h-5 text-purple-400" />
-                <h3 className="text-lg font-semibold text-white">Describe Your Vision</h3>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Describe Your Vision</h3>
               </div>
               <div className="flex gap-2">
                 <Button
@@ -103,14 +105,14 @@ const ModernGenerateTab = memo(({
               value={inputPrompt}
               onChange={(e) => setInputPrompt(e.target.value)}
               placeholder="A majestic dragon soaring through storm clouds, lightning illuminating its scales, cinematic lighting, ultra detailed..."
-              className="w-full h-32 resize-none rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/50 backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+              className="w-full h-32 resize-none rounded-xl border border-slate-300/50 dark:border-white/10 bg-slate-100/50 dark:bg-white/5 px-4 py-3 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-white/50 backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-slate-200/50 dark:focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
               whileFocus={{ scale: 1.01 }}
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             />
 
             {/* Category Buttons */}
             <div className="space-y-2">
-              <label className="text-sm font-medium text-white/80">🎨 Quick Categories:</label>
+              <label className="text-sm font-medium text-slate-700 dark:text-white/80">🎨 Quick Categories:</label>
               <div className="grid grid-cols-3 gap-2">
                 {categories.map((category) => (
                   <Button
@@ -141,24 +143,24 @@ const ModernGenerateTab = memo(({
         </GlassCard>
 
         {/* Advanced Settings */}
-        <GlassCard>
+        <GlassCard className="border-slate-300 dark:border-white/10">
           <div className="space-y-4">
             <div className="flex items-center gap-2">
               <Settings className="w-5 h-5 text-purple-400" />
-              <h3 className="text-lg font-semibold text-white">Generation Settings</h3>
+              <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Generation Settings</h3>
             </div>
 
             <div className="grid md:grid-cols-2 gap-4">
               {/* Model Selection */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-white/80">AI Model</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-white/80">AI Model</label>
                 <select
                   value={selectedModel}
                   onChange={(e) => setSelectedModel(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full rounded-xl border border-slate-300/50 dark:border-white/10 bg-slate-100/50 dark:bg-white/5 px-3 py-2 text-slate-800 dark:text-white backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-slate-200/50 dark:focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                 >
                   {models.map((model) => (
-                    <option key={model.value} value={model.value} className="bg-slate-800">
+                    <option key={model.value} value={model.value} className="bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white">
                       {model.label}
                     </option>
                   ))}
@@ -167,14 +169,14 @@ const ModernGenerateTab = memo(({
 
               {/* Dimensions */}
               <div className="space-y-2">
-                <label className="block text-sm font-medium text-white/80">Dimensions</label>
+                <label className="block text-sm font-medium text-slate-700 dark:text-white/80">Dimensions</label>
                 <select
                   value={selectedShape}
                   onChange={(e) => setSelectedShape(e.target.value)}
-                  className="w-full rounded-xl border border-white/10 bg-white/5 px-3 py-2 text-white backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
+                  className="w-full rounded-xl border border-slate-300/50 dark:border-white/10 bg-slate-100/50 dark:bg-white/5 px-3 py-2 text-slate-800 dark:text-white backdrop-blur-md transition-all duration-200 focus:border-purple-500/50 focus:bg-slate-200/50 dark:focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20"
                 >
                   {Object.entries(shapes).map(([key, shape]) => (
-                    <option key={key} value={key} className="bg-slate-800">
+                    <option key={key} value={key} className="bg-slate-200 dark:bg-slate-800 text-slate-800 dark:text-white">
                       {shape.label}
                     </option>
                   ))}
@@ -243,14 +245,14 @@ const ModernGenerateTab = memo(({
                         animate={{ scale: 1, opacity: 1 }}
                         className="flex items-center justify-center h-full"
                       >
-                        <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+                        <svg className="w-3 h-3 text-slate-700 dark:text-white" fill="currentColor" viewBox="0 0 20 20">
                           <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
                         </svg>
                       </motion.div>
                     )}
                   </div>
                 </div>
-                <span className="text-sm text-white/80">Remove watermark</span>
+                <span className="text-sm text-slate-700 dark:text-white/80">Remove watermark</span>
               </label>
             </div>
           </div>
@@ -270,13 +272,13 @@ const ModernGenerateTab = memo(({
       </div>
 
       {/* Right Panel - Image Display */}
-      <div className="space-y-6">
-        <GlassCard className="h-fit">
-          <div className="space-y-4">
-            <div className="flex items-center justify-between">
+      <div className="flex flex-col justify-center">
+        <GlassCard className="flex-1 border-slate-300 dark:border-white/10">
+          <div className="h-full flex flex-col">
+            <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2">
                 <ImageIcon className="w-5 h-5 text-purple-400" />
-                <h3 className="text-lg font-semibold text-white">Generated Image</h3>
+                <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Generated Image</h3>
               </div>
               {imageUrl && imageLoaded && (
                 <Button
@@ -290,7 +292,7 @@ const ModernGenerateTab = memo(({
               )}
             </div>
 
-            <div className="relative aspect-square w-full rounded-xl overflow-hidden bg-white/5 border border-white/10">
+            <div className="relative flex-1 w-full rounded-xl overflow-hidden bg-white/5 border border-white/10 min-h-[500px] flex items-center justify-center">
               <AnimatePresence mode="wait">
                 {imageUrl ? (
                   <motion.div
@@ -299,12 +301,12 @@ const ModernGenerateTab = memo(({
                     animate={{ opacity: 1, scale: 1 }}
                     exit={{ opacity: 0, scale: 0.8 }}
                     transition={{ duration: 0.5 }}
-                    className="relative w-full h-full"
+                    className="relative w-full h-full flex items-center justify-center"
                   >
                     <img
                       src={imageUrl}
                       alt="Generated"
-                      className="w-full h-full object-cover"
+                      className="max-w-full max-h-full object-contain"
                       onLoad={handleImageLoadComplete}
                       onError={handleImageLoadError}
                     />
@@ -321,8 +323,8 @@ const ModernGenerateTab = memo(({
                           <div className="text-center space-y-4">
                             <div className="w-12 h-12 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto" />
                             <div className="space-y-2">
-                              <p className="text-white text-sm">Generating your image...</p>
-                              <div className="w-48 h-2 bg-white/10 rounded-full overflow-hidden">
+                              <p className="text-slate-800 dark:text-white text-sm">Generating your image...</p>
+                              <div className="w-48 h-2 bg-slate-300/50 dark:bg-white/10 rounded-full overflow-hidden">
                                 <motion.div
                                   className="h-full bg-gradient-to-r from-purple-500 to-pink-500"
                                   initial={{ width: 0 }}
@@ -330,7 +332,7 @@ const ModernGenerateTab = memo(({
                                   transition={{ duration: 0.3 }}
                                 />
                               </div>
-                              <p className="text-white/60 text-xs">{Math.round(progress)}% complete</p>
+                              <p className="text-slate-600 dark:text-white/60 text-xs">{Math.round(progress)}% complete</p>
                             </div>
                           </div>
                         </motion.div>
@@ -349,8 +351,8 @@ const ModernGenerateTab = memo(({
                         <Sparkles className="w-8 h-8 text-purple-400" />
                       </div>
                       <div>
-                        <h4 className="text-lg font-medium text-white/90 mb-2">Ready to Create</h4>
-                        <p className="text-sm text-white/60 max-w-xs">
+                        <h4 className="text-lg font-medium text-slate-800 dark:text-white/90 mb-2">Ready to Create</h4>
+                        <p className="text-sm text-slate-600 dark:text-white/60 max-w-xs">
                           Enter a prompt and click generate to create your first AI image
                         </p>
                       </div>
@@ -382,6 +384,10 @@ const ModernGenerateTab = memo(({
         </GlassCard>
       </div>
     </div>
+
+    {/* Example Prompts Grid - Full Width */}
+    <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
+  </div>
   );
 });
 

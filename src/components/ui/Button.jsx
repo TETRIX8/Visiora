@@ -15,9 +15,9 @@ const Button = ({
 }) => {
   const variants = {
     primary: 'bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700 text-white shadow-lg hover:shadow-purple-500/25',
-    secondary: 'bg-white/10 hover:bg-white/20 border border-white/20 hover:border-white/30 text-white backdrop-blur-md',
-    ghost: 'hover:bg-white/10 text-white/80 hover:text-white',
-    outline: 'border-2 border-purple-500/50 hover:border-purple-500 text-purple-400 hover:text-purple-300 hover:bg-purple-500/10'
+    secondary: 'bg-slate-200/50 dark:bg-white/10 hover:bg-slate-200/70 dark:hover:bg-white/20 border border-slate-300/50 dark:border-white/20 hover:border-slate-400/60 dark:hover:border-white/30 text-slate-700 dark:text-white backdrop-blur-md',
+    ghost: 'hover:bg-slate-100 dark:hover:bg-white/10 text-slate-600 dark:text-white/80 hover:text-slate-800 dark:hover:text-white',
+    outline: 'border-2 border-purple-500/50 hover:border-purple-500 text-purple-600 dark:text-purple-400 hover:text-purple-700 dark:hover:text-purple-300 hover:bg-purple-500/10'
   };
 
   const sizes = {
@@ -47,7 +47,7 @@ const Button = ({
         <div className="w-4 h-4 border-2 border-current border-t-transparent rounded-full animate-spin" />
       )}
       {Icon && !loading && <Icon size={18} />}
-      <span>{children}</span>
+      {children && <span>{children}</span>}
       
       {/* Shimmer effect */}
       {variant === 'primary' && (

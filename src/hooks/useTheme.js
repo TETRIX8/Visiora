@@ -23,8 +23,10 @@ export const useTheme = () => {
     
     if (isDark) {
       html.classList.add('dark');
+      html.setAttribute('data-theme', 'dark');
     } else {
       html.classList.remove('dark');
+      html.setAttribute('data-theme', 'light');
     }
     
     // Re-enable transitions after a frame

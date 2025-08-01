@@ -17,14 +17,14 @@ const Input = ({
   return (
     <div className="space-y-2">
       {label && (
-        <label className="block text-sm font-medium text-white/90">
+        <label className="block text-sm font-medium text-slate-700 dark:text-white/90">
           {label}
         </label>
       )}
       
       <div className="relative">
         {Icon && (
-          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-white/50">
+          <div className="absolute left-3 top-1/2 -translate-y-1/2 text-slate-500 dark:text-white/50">
             <Icon size={18} />
           </div>
         )}
@@ -35,9 +35,9 @@ const Input = ({
           onChange={onChange}
           placeholder={placeholder}
           className={cn(
-            'w-full rounded-xl border border-white/10 bg-white/5 px-4 py-3 text-white placeholder-white/50 backdrop-blur-md transition-all duration-200',
-            'focus:border-purple-500/50 focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20',
-            'hover:border-white/20 hover:bg-white/10',
+            'w-full rounded-xl border border-slate-300/50 dark:border-white/10 bg-slate-100/50 dark:bg-white/5 px-4 py-3 text-slate-800 dark:text-white placeholder-slate-500 dark:placeholder-white/50 backdrop-blur-md transition-all duration-200',
+            'focus:border-purple-500/50 focus:bg-slate-200/50 dark:focus:bg-white/10 focus:outline-none focus:ring-2 focus:ring-purple-500/20',
+            'hover:border-slate-400/60 dark:hover:border-white/20 hover:bg-slate-200/60 dark:hover:bg-white/10',
             Icon && 'pl-10',
             error && 'border-red-500/50 focus:border-red-500/50 focus:ring-red-500/20',
             className
