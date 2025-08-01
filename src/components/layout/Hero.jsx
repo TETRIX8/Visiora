@@ -107,7 +107,7 @@ const Hero = () => {
           </motion.div>
         </motion.div>
 
-        {/* Floating Words Animation */}
+        {/* Floating Words Animation - Optimized for Mobile */}
         <div className="fixed inset-0 pointer-events-none z-5">
           {floatingWords.map((word, index) => {
             // Create varied positioning patterns
@@ -133,22 +133,22 @@ const Hero = () => {
             return (
               <motion.div
                 key={word}
-                className="absolute text-slate-300/15 dark:text-white/10 font-bold text-6xl md:text-8xl select-none"
+                className="absolute text-slate-300/15 dark:text-white/10 font-bold text-4xl md:text-6xl lg:text-8xl select-none will-change-transform"
                 style={{
                   left: `${Math.max(0, Math.min(95, randomOffset.left))}%`,
                   top: `${Math.max(-5, Math.min(105, randomOffset.top))}%`,
                 }}
                 animate={{
-                  y: [-30, 30, -30],
-                  rotate: [-10, 10, -10],
-                  scale: [0.8, 1.3, 0.8],
-                  x: [-20, 20, -20],
+                  y: [-20, 20, -20],
+                  rotate: [-8, 8, -8],
+                  scale: [0.9, 1.1, 0.9],
+                  x: [-15, 15, -15],
                 }}
                 transition={{
-                  duration: 18 + index * 2,
+                  duration: 20 + index * 2,
                   repeat: Infinity,
                   ease: "easeInOut",
-                  delay: index * 0.8,
+                  delay: index * 1,
                 }}
               >
                 {word}

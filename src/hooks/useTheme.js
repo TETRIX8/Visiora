@@ -18,9 +18,10 @@ export const useTheme = () => {
   const applyTheme = useCallback((isDark) => {
     const html = document.documentElement;
     
-    // Remove transition during theme change to prevent flicker
-    html.style.transition = 'none';
+    // Disable all transitions temporarily
+    html.style.setProperty('transition', 'none', 'important');
     
+    // Apply theme classes
     if (isDark) {
       html.classList.add('dark');
       html.setAttribute('data-theme', 'dark');
@@ -29,24 +30,31 @@ export const useTheme = () => {
       html.setAttribute('data-theme', 'light');
     }
     
-    // Re-enable transitions after a frame
+    // Force reflow
+    html.offsetHeight;
+    
+    // Re-enable transitions after theme is applied
     requestAnimationFrame(() => {
-      html.style.transition = 'background-color 0.2s ease, color 0.2s ease';
+      requestAnimationFrame(() => {
+        html.style.removeProperty('transition');
+      });
     });
     
     localStorage.setItem(THEME_KEY, JSON.stringify(isDark));
   }, []);
 
-  // Initialize theme on mount
+  // Initialize theme on mount with immediate application
   useEffect(() => {
     applyTheme(isDarkMode);
-  }, [isDarkMode, applyTheme]);
+  }, []); // Only run once on mount
 
   const toggleTheme = useCallback(() => {
-    const newTheme = !isDarkMode;
-    setIsDarkMode(newTheme);
-    applyTheme(newTheme);
-  }, [isDarkMode, applyTheme]);
+    setIsDarkMode(prevMode => {
+      const newTheme = !prevMode;
+      applyTheme(newTheme);
+      return newTheme;
+    });
+  }, [applyTheme]);
 
   const setTheme = useCallback((newIsDark) => {
     setIsDarkMode(newIsDark);
