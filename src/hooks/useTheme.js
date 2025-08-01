@@ -4,64 +4,52 @@ import { useState, useEffect, useCallback } from 'react';
 
 const THEME_KEY = 'visiora-theme';
 
-// Optimized theme management hook
 export const useTheme = () => {
   const [isDarkMode, setIsDarkMode] = useState(() => {
-    // Only check localStorage once on initialization
-    if (typeof window !== 'undefined') {
-      const saved = localStorage.getItem(THEME_KEY);
-      return saved ? JSON.parse(saved) : true;
-    }
-    return true;
+    if (typeof window === 'undefined') return true;
+    
+    const saved = localStorage.getItem(THEME_KEY);
+    if (saved) return JSON.parse(saved);
+    
+    return window.matchMedia('(prefers-color-scheme: dark)').matches;
   });
 
-  // Memoized theme application function
+  // Apply theme instantly without flicker
   const applyTheme = useCallback((isDark) => {
-    const root = document.documentElement;
+    const html = document.documentElement;
     
-    // Batch DOM updates for better performance
-    root.style.setProperty('--theme-transition', 'none');
+    // Remove transition during theme change to prevent flicker
+    html.style.transition = 'none';
     
-    // Apply theme attribute
-    root.setAttribute('data-theme', isDark ? 'dark' : 'light');
-    
-    // Apply classes
     if (isDark) {
-      root.classList.add('dark');
-      root.classList.remove('light');
+      html.classList.add('dark');
     } else {
-      root.classList.remove('dark');
-      root.classList.add('light');
+      html.classList.remove('dark');
     }
     
     // Re-enable transitions after a frame
     requestAnimationFrame(() => {
-      root.style.removeProperty('--theme-transition');
+      html.style.transition = 'background-color 0.2s ease, color 0.2s ease';
     });
     
-    // Save to localStorage
     localStorage.setItem(THEME_KEY, JSON.stringify(isDark));
   }, []);
 
-  // Apply theme on mount and when changed
+  // Initialize theme on mount
   useEffect(() => {
     applyTheme(isDarkMode);
   }, [isDarkMode, applyTheme]);
 
-  // Optimized theme toggle function
   const toggleTheme = useCallback(() => {
-    setIsDarkMode(prev => !prev);
-  }, []);
+    const newTheme = !isDarkMode;
+    setIsDarkMode(newTheme);
+    applyTheme(newTheme);
+  }, [isDarkMode, applyTheme]);
 
   const setTheme = useCallback((newIsDark) => {
     setIsDarkMode(newIsDark);
-  }, []);
+    applyTheme(newIsDark);
+  }, [applyTheme]);
 
-  return {
-    isDarkMode,
-    toggleTheme,
-    setTheme
-  };
+  return { isDarkMode, toggleTheme, setTheme };
 };
-
-export default useTheme;
