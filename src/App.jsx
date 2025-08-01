@@ -1,5 +1,5 @@
 // src/App.jsx
-import React, { useState, useEffect, Suspense, lazy } from "react";
+import React, { useState, useEffect, Suspense, lazy, useCallback, useMemo } from "react";
 import { AnimatePresence } from "framer-motion";
 import { generateRandomPrompt } from "./api/pollinationService";
 import useTheme from "./hooks/useTheme";
@@ -13,19 +13,24 @@ import Hero from "./components/layout/Hero";
 import ModernTabNavigation from "./components/tabs/ModernTabNavigation";
 import ModernGenerateTab from "./components/tabs/ModernGenerateTab";
 
-// Lazy load less critical components
-const EnhanceTab = lazy(() => import("./components/EnhanceTab"));
-const HistoryTab = lazy(() => import("./components/HistoryTab"));
+// Lazy load less critical components for better performance
+const ModernEnhanceTab = lazy(() => import("./components/tabs/ModernEnhanceTab"));
+const ModernHistoryTab = lazy(() => import("./components/tabs/ModernHistoryTab"));
 
-// Loading component
-const TabLoader = () => (
+// Loading component with better styling
+const TabLoader = React.memo(() => (
   <div className="flex items-center justify-center h-64">
-    <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin" />
+    <div className="space-y-4 text-center">
+      <div className="w-8 h-8 border-4 border-purple-500/30 border-t-purple-500 rounded-full animate-spin mx-auto" />
+      <p className="text-white/60 text-sm">Loading...</p>
+    </div>
   </div>
-);
+));
+
+TabLoader.displayName = 'TabLoader';
 
 function App() {
-  // State management
+  // State management with better initial values
   const [inputPrompt, setInputPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,21 +55,21 @@ function App() {
   // Theme management
   const { isDarkMode, setTheme } = useTheme();
 
-  // Configuration objects
-  const shapes = {
+  // Memoized configuration objects for better performance
+  const shapes = useMemo(() => ({
     landscape: { width: 1344, height: 768, label: "Landscape (16:9)" },
     portrait: { width: 768, height: 1344, label: "Portrait (9:16)" },
     square: { width: 1024, height: 1024, label: "Square (1:1)" },
     wide: { width: 1536, height: 640, label: "Wide (21:9)" },
     story: { width: 576, height: 1024, label: "Story (9:16)" },
     manual: { width: 1024, height: 1024, label: "Manual" },
-  };
+  }), []);
 
-  const models = [
+  const models = useMemo(() => ([
     { value: "flux", label: "Flux (Best Quality)" },
     { value: "turbo", label: "Turbo (Fastest)" },
     { value: "kontext", label: "Kontext (Artistic)" },
-  ];
+  ]), []);
 
   // Load history from localStorage on mount
   useEffect(() => {
@@ -80,15 +85,19 @@ function App() {
     }
   }, []);
 
-  // Save history to localStorage
+  // Debounced save to localStorage
   useEffect(() => {
-    if (history.length > 0) {
-      localStorage.setItem("visiora-history", JSON.stringify(history));
-    }
+    const timeoutId = setTimeout(() => {
+      if (history.length > 0) {
+        localStorage.setItem("visiora-history", JSON.stringify(history));
+      }
+    }, 500);
+
+    return () => clearTimeout(timeoutId);
   }, [history]);
 
-  // Progress simulation
-  const simulateProgress = () => {
+  // Memoized progress simulation
+  const simulateProgress = useCallback(() => {
     setProgress(0);
     const interval = setInterval(() => {
       setProgress((prev) => {
@@ -100,10 +109,10 @@ function App() {
       });
     }, 300);
     return interval;
-  };
+  }, []);
 
-  // Image generation handler
-  const handleGenerateClick = async () => {
+  // Optimized image generation handler
+  const handleGenerateClick = useCallback(async () => {
     if (!inputPrompt.trim()) {
       alert("Please enter a prompt!");
       return;
@@ -172,10 +181,10 @@ function App() {
       setProgress(0);
       clearInterval(progressInterval);
     }
-  };
+  }, [inputPrompt, selectedModel, selectedShape, seed, removeWatermark, width, height, shapes, simulateProgress]);
 
-  // Image load handlers
-  const handleImageLoadComplete = () => {
+  // Optimized image load handlers
+  const handleImageLoadComplete = useCallback(() => {
     setImageLoaded(true);
     setIsLoading(false);
     setProgress(0);
@@ -183,9 +192,9 @@ function App() {
       clearTimeout(window.imageLoadTimeout);
       window.imageLoadTimeout = null;
     }
-  };
+  }, []);
 
-  const handleImageLoadError = () => {
+  const handleImageLoadError = useCallback(() => {
     setError("Failed to load the generated image");
     setIsLoading(false);
     setImageLoaded(false);
@@ -194,10 +203,10 @@ function App() {
       clearTimeout(window.imageLoadTimeout);
       window.imageLoadTimeout = null;
     }
-  };
+  }, []);
 
-  // Random prompt handlers
-  const handleConfusedClick = () => {
+  // Optimized random prompt handlers
+  const handleConfusedClick = useCallback(() => {
     const examplePrompts = [
       "A majestic dragon soaring through storm clouds, lightning illuminating its scales, cinematic lighting, ultra detailed",
       "A futuristic cyberpunk city at night, neon lights reflecting in rain-soaked streets, atmospheric fog, hyper realistic",
@@ -207,9 +216,9 @@ function App() {
     ];
     const randomPrompt = examplePrompts[Math.floor(Math.random() * examplePrompts.length)];
     setInputPrompt(randomPrompt);
-  };
+  }, []);
 
-  const handleGenerateRandomPrompt = async (category = "") => {
+  const handleGenerateRandomPrompt = useCallback(async (category = "") => {
     setIsGeneratingRandom(true);
     try {
       const randomPrompt = await generateRandomPrompt(category);
@@ -220,10 +229,10 @@ function App() {
     } finally {
       setIsGeneratingRandom(false);
     }
-  };
+  }, [handleConfusedClick]);
 
-  // Enhanced prompt handler
-  const handleEnhancePrompt = async () => {
+  // Enhanced prompt handler with better error handling
+  const handleEnhancePrompt = useCallback(async () => {
     if (!inputPrompt.trim()) {
       alert("Please enter a prompt first!");
       return;
@@ -262,34 +271,37 @@ function App() {
     } finally {
       setIsEnhancing(false);
     }
-  };
+  }, [inputPrompt]);
 
-  // History handlers
-  const handleHistoryItemClick = (historyItem) => {
+  // Optimized history handlers
+  const handleHistoryItemClick = useCallback((historyItem) => {
     setInputPrompt(historyItem.prompt);
     setImageUrl(historyItem.imageUrl);
     setActiveTab("generate");
-  };
+  }, []);
 
-  const handleDeleteHistoryItem = (itemId, event) => {
+  const handleDeleteHistoryItem = useCallback((itemId, event) => {
     event?.stopPropagation();
-    const updatedHistory = history.filter((item) => item.id !== itemId);
-    setHistory(updatedHistory);
+    setHistory(prev => {
+      const updatedHistory = prev.filter((item) => item.id !== itemId);
+      
+      if (updatedHistory.length === 0) {
+        localStorage.removeItem("visiora-history");
+      } else {
+        localStorage.setItem("visiora-history", JSON.stringify(updatedHistory));
+      }
+      
+      return updatedHistory;
+    });
+  }, []);
 
-    if (updatedHistory.length === 0) {
-      localStorage.removeItem("visiora-history");
-    } else {
-      localStorage.setItem("visiora-history", JSON.stringify(updatedHistory));
-    }
-  };
-
-  const handleClearAllHistory = () => {
+  const handleClearAllHistory = useCallback(() => {
     setHistory([]);
     localStorage.removeItem("visiora-history");
-  };
+  }, []);
 
-  // Tab content renderer
-  const renderTabContent = () => {
+  // Memoized tab content renderer for better performance
+  const renderTabContent = useMemo(() => {
     switch (activeTab) {
       case "generate":
         return (
@@ -326,7 +338,7 @@ function App() {
       case "enhance":
         return (
           <Suspense fallback={<TabLoader />}>
-            <EnhanceTab
+            <ModernEnhanceTab
               inputPrompt={inputPrompt}
               setInputPrompt={setInputPrompt}
               isEnhancing={isEnhancing}
@@ -337,7 +349,7 @@ function App() {
       case "history":
         return (
           <Suspense fallback={<TabLoader />}>
-            <HistoryTab
+            <ModernHistoryTab
               history={history}
               setInputPrompt={setInputPrompt}
               setActiveTab={setActiveTab}
@@ -349,7 +361,14 @@ function App() {
       default:
         return null;
     }
-  };
+  }, [
+    activeTab, inputPrompt, imageUrl, isLoading, imageLoaded, error, progress,
+    selectedModel, selectedShape, seed, removeWatermark, width, height,
+    shapes, models, history, isEnhancing, isGeneratingRandom,
+    handleGenerateClick, handleImageLoadComplete, handleImageLoadError,
+    handleConfusedClick, handleGenerateRandomPrompt, handleEnhancePrompt,
+    handleDeleteHistoryItem, handleClearAllHistory
+  ]);
 
   return (
     <div className="min-h-screen bg-slate-900 text-white font-display">
@@ -377,7 +396,7 @@ function App() {
           {/* Tab Content */}
           <AnimatePresence mode="wait">
             <div key={activeTab} className="w-full">
-              {renderTabContent()}
+              {renderTabContent}
             </div>
           </AnimatePresence>
         </div>
@@ -386,4 +405,4 @@ function App() {
   );
 }
 
-export default App;
+export default React.memo(App);
