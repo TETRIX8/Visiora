@@ -1,5 +1,15 @@
 /* Modern AI Image Generator Styles */
 
+/* Optimized theme transitions - only for essential elements */
+html, body, .app-container {
+  transition: background-color 0.15s ease-out, color 0.15s ease-out !important;
+}
+
+/* Selective transitions for interactive elements only */
+button, input, textarea, select, .theme-toggle, .header {
+  transition: all 0.2s ease-out !important;
+}
+
 /* CSS Variables for theming */
 :root {
   --primary-color: #2563eb;
@@ -96,12 +106,9 @@
   margin: 0;
   padding: 0;
   box-sizing: border-box;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
+/* Only add transitions to elements that need them */
 body {
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
     "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
@@ -111,18 +118,7 @@ body {
   background: var(--bg-primary);
   color: var(--text-primary);
   line-height: 1.6;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-x: hidden;
-}
-
-/* Theme transition class for smooth sliding effect */
-body.theme-transitioning * {
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    border-color 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    box-shadow 0.5s cubic-bezier(0.4, 0, 0.2, 1),
-    backdrop-filter 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 .app-container {
@@ -130,7 +126,6 @@ body.theme-transitioning * {
   width: 100vw;
   background: var(--bg-primary);
   overflow-x: hidden;
-  transition: background-color 0.5s cubic-bezier(0.4, 0, 0.2, 1);
 }
 
 .container {
@@ -142,21 +137,134 @@ body.theme-transitioning * {
 
 /* Header */
 .header {
-  background: var(--bg-card);
-  border-bottom: 1px solid var(--border-color);
-  backdrop-filter: blur(10px);
-  position: sticky;
+  background: rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  position: relative;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  overflow: hidden;
+}
+
+.header:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-bottom-color: rgba(255, 255, 255, 0.2);
+}
+
+/* Ripple effect container */
+.header::before {
+  content: '';
+  position: absolute;
   top: 0;
-  z-index: 100;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.15) 0%, 
+    rgba(255, 255, 255, 0.05) 50%, 
+    rgba(255, 255, 255, 0.1) 100%);
+  border-radius: 0;
+  pointer-events: none;
+  transition: all 0.3s ease;
+}
+
+.header::after {
+  content: '';
+  position: absolute;
+  top: -50%;
+  left: -50%;
+  width: 200%;
+  height: 200%;
+  background: radial-gradient(circle, 
+    rgba(138, 43, 226, 0.15) 0%, 
+    rgba(30, 144, 255, 0.1) 30%,
+    transparent 60%);
+  pointer-events: none;
+  opacity: 0;
+  transform: scale(0);
+  transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.header:hover::after {
+  opacity: 1;
+  transform: scale(1);
+  animation: ripple-wave 3s infinite;
+}
+
+@keyframes ripple-wave {
+  0% {
+    transform: scale(1) rotate(0deg);
+    opacity: 0.3;
+  }
+  50% {
+    transform: scale(1.1) rotate(180deg);
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(1) rotate(360deg);
+    opacity: 0.3;
+  }
+}
+
+/* Dark theme header styles */
+[data-theme="dark"] .header {
+  background: rgba(10, 24, 40, 0.8);
+  border-bottom: 1px solid rgba(42, 79, 103, 0.3);
+}
+
+[data-theme="dark"] .header:hover {
+  background: rgba(10, 24, 40, 0.9);
+  border-bottom-color: rgba(23, 133, 130, 0.5);
+}
+
+[data-theme="dark"] .header::before {
+  background: linear-gradient(135deg, 
+    rgba(42, 79, 103, 0.2) 0%, 
+    rgba(20, 43, 66, 0.1) 50%, 
+    rgba(42, 79, 103, 0.15) 100%);
+}
+
+[data-theme="dark"] .header::after {
+  background: radial-gradient(circle, 
+    rgba(23, 133, 130, 0.2) 0%, 
+    rgba(42, 79, 103, 0.15) 30%,
+    transparent 60%);
+}
+
+/* Light theme header styles */
+[data-theme="light"] .header {
+  background: rgba(255, 255, 255, 0.9);
+  border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[data-theme="light"] .header:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-bottom-color: rgba(37, 99, 235, 0.3);
+}
+
+[data-theme="light"] .header::before {
+  background: linear-gradient(135deg, 
+    rgba(255, 255, 255, 0.8) 0%, 
+    rgba(255, 255, 255, 0.6) 50%, 
+    rgba(255, 255, 255, 0.7) 100%);
+}
+
+[data-theme="light"] .header::after {
+  background: radial-gradient(circle, 
+    rgba(37, 99, 235, 0.15) 0%, 
+    rgba(6, 182, 212, 0.1) 30%,
+    transparent 60%);
 }
 
 .header-content {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 1rem 2rem;
+  padding: 0.8rem 2rem;
   max-width: 1200px;
   margin: 0 auto;
+  position: relative;
+  z-index: 1;
 }
 
 .logo {
@@ -166,6 +274,11 @@ body.theme-transitioning * {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
+  transition: all 0.3s ease;
+}
+
+.logo:hover {
+  transform: translateY(-1px);
 }
 
 .logo-image {
@@ -173,33 +286,74 @@ body.theme-transitioning * {
   height: 40px;
   border-radius: 16px; /* More rounded - 40% of width/height */
   object-fit: cover;
-  box-shadow: var(--shadow-sm);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  transition: all 0.3s ease;
+}
+
+.logo-image:hover {
+  transform: scale(1.05);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
 }
 
 .logo-text {
   font-size: 1.5rem;
   font-weight: 700;
   color: var(--text-primary);
+  background: linear-gradient(135deg, var(--text-primary), var(--primary-color));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .theme-toggle {
-  background: var(--bg-input);
-  border: 1px solid var(--border-color);
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
   border-radius: 50%; /* Make it round */
   padding: 0.5rem;
   cursor: pointer;
   font-size: 1.2rem;
-  transition: var(--transition);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   width: 44px; /* Fixed width for perfect circle */
   height: 44px; /* Fixed height for perfect circle */
   display: flex;
   align-items: center;
   justify-content: center;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
 }
 
 .theme-toggle:hover {
-  border-color: var(--border-hover);
-  transform: scale(1.05);
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.3);
+  transform: scale(1.05) translateY(-1px);
+  box-shadow: 0 6px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Dark theme toggle styles */
+[data-theme="dark"] .theme-toggle {
+  background: rgba(42, 79, 103, 0.3);
+  border: 1px solid rgba(42, 79, 103, 0.5);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: rgba(42, 79, 103, 0.5);
+  border-color: rgba(23, 133, 130, 0.6);
+  box-shadow: 0 6px 20px rgba(23, 133, 130, 0.2);
+}
+
+/* Light theme toggle styles */
+[data-theme="light"] .theme-toggle {
+  background: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(0, 0, 0, 0.1);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background: rgba(255, 255, 255, 0.95);
+  border-color: var(--primary-color);
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.15);
 }
 
 /* Hero Section */
@@ -1495,4 +1649,56 @@ html {
 
 .text-scroll-section span {
   transition: color 0.5s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Tab Content Smooth Transitions - Exact skiper-card pattern */
+.tab-content {
+  position: relative;
+  min-height: 500px;
+  overflow: hidden;
+  width: 100%;
+  transform: translateZ(0);
+  backface-visibility: hidden;
+  perspective: 1000px;
+}
+
+.tab-content > div {
+  width: 100%;
+  /* Exact skiper-card transition: -translate-x-36/translate-x-36, duration-500, ease-in-out */
+  transition: transform 0.5s ease-in-out, opacity 0.5s ease-in-out;
+  position: relative;
+  user-select: none;
+  max-width: unset;
+  transform: translateZ(0);
+  will-change: transform, opacity;
+}
+
+/* Remove any conflicting transitions from child components */
+.tab-content * {
+  transition: none !important;
+}
+
+/* Re-enable necessary transitions for interactive elements */
+.tab-content button,
+.tab-content input,
+.tab-content textarea,
+.tab-content select {
+  transition: all 0.3s ease !important;
+}
+
+/* Full width for all tab sections */
+.generate-tab,
+.enhance-tab,
+.history-tab {
+  width: 100% !important;
+  max-width: 100% !important;
+  transform: none !important;
+  transition: none !important;
+}
+
+/* Ensure tab containers take full width */
+.tab-content .container {
+  max-width: 100% !important;
+  width: 100% !important;
+  padding: 0 !important;
 }

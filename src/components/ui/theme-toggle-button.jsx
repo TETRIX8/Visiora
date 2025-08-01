@@ -1,61 +1,19 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import "./theme-toggle-button.css";
 
 const ThemeToggleButton = ({
   showLabel = false,
-  variant = "default",
+  variant = "default", 
   start = "top-left",
   className = "",
   isDarkMode,
   onThemeChange,
 }) => {
-  const [isDark, setIsDark] = useState(() => {
-    if (isDarkMode !== undefined) {
-      return isDarkMode;
-    }
-    if (typeof window !== "undefined") {
-      const savedTheme = localStorage.getItem("visiora-theme");
-      return savedTheme ? JSON.parse(savedTheme) : true;
-    }
-    return true; // Default to dark
-  });
-
-  useEffect(() => {
-    if (isDarkMode !== undefined && isDarkMode !== isDark) {
-      setIsDark(isDarkMode);
-    }
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    const root = document.documentElement;
-    const newTheme = isDark ? "dark" : "light";
-    root.setAttribute("data-theme", newTheme);
-
-    // Also apply to document root for Tailwind dark mode
-    if (isDark) {
-      root.classList.add("dark");
-    } else {
-      root.classList.remove("dark");
-    }
-
-    // Add transition class to body for smooth theme change
-    document.body.classList.add("theme-transitioning");
-
-    // Remove transition class after animation completes
-    setTimeout(() => {
-      document.body.classList.remove("theme-transitioning");
-    }, 500);
-
-    // Save to localStorage
-    localStorage.setItem("visiora-theme", JSON.stringify(isDark));
-
+  // Simplified theme toggle - no local state management
+  const handleToggle = () => {
     if (onThemeChange) {
-      onThemeChange(isDark);
+      onThemeChange(!isDarkMode);
     }
-  }, [isDark, onThemeChange]);
-
-  const toggleTheme = () => {
-    setIsDark(!isDark);
   };
 
   return (
@@ -64,7 +22,7 @@ const ThemeToggleButton = ({
       type="button"
       title="Toggle theme"
       aria-label="Toggle theme"
-      onClick={toggleTheme}
+      onClick={handleToggle}
     >
       <span className="theme-toggle-sr">Toggle theme</span>
       <svg

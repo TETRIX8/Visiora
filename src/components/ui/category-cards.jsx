@@ -179,8 +179,11 @@ const CategoryCards = ({ onPromptSelect }) => {
       </div>
 
       <div className="category-cards-grid">
-        {categories.map((category) => (
-          <div key={category.id} className="category-card">
+        {categories.map((category, index) => (
+          <div 
+            key={category.id} 
+            className="category-card"
+          >
             <div className="category-card-header">
               <span className="category-emoji">{category.emoji}</span>
               <h4 className="category-title">{category.title}</h4>

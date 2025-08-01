@@ -1,10 +1,14 @@
 /* src/components/HistoryTab.css */
 
 /* Import try-prompt-btn styles */
+@import url('./ui/theme-toggle-button.css');
+@import url('./ui/card-swipe.css');
 @import url('./ui/category-cards.css');
 
 .history-tab {
-  padding: 24px;
+  width: 100%;
+  max-width: 100%;
+  padding: 0;
   min-height: 500px;
 }
 

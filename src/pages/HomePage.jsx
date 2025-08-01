@@ -9,8 +9,10 @@ import HistoryTab from "../components/HistoryTab";
 import TypewriterEffect from "../components/TypewriterEffect";
 import ThemeToggleButton from "../components/ui/theme-toggle-button";
 import SocialLinks from "../components/SocialLinks";
+import CategoryCards from "../components/ui/category-cards";
 import { TextScroll } from "../components/ui/text-scroll";
 import { generateRandomPrompt } from "../api/pollinationService";
+import useTheme from "../hooks/useTheme";
 
 // Import logo
 import logo from "../assets/logo/logo.jpg";
@@ -50,11 +52,8 @@ const HomePage = () => {
   const [width, setWidth] = useState(1024);
   const [height, setHeight] = useState(1024);
 
-  // Theme state - load from localStorage or default to dark
-  const [isDarkMode, setIsDarkMode] = useState(() => {
-    const savedTheme = localStorage.getItem("visiora-theme");
-    return savedTheme ? JSON.parse(savedTheme) : true;
-  });
+  // Optimized theme management
+  const { isDarkMode, setTheme } = useTheme();
 
   // Progress state
   const [progress, setProgress] = useState(0);
@@ -94,29 +93,9 @@ const HomePage = () => {
     }
   }, [history]);
 
-  // Save theme to localStorage whenever it changes
-  useEffect(() => {
-    localStorage.setItem("visiora-theme", JSON.stringify(isDarkMode));
-  }, [isDarkMode]);
-
-  useEffect(() => {
-    // Apply theme to document
-    document.documentElement.setAttribute(
-      "data-theme",
-      isDarkMode ? "dark" : "light"
-    );
-    
-    // Also apply to document root for Tailwind dark mode
-    if (isDarkMode) {
-      document.documentElement.classList.add("dark");
-    } else {
-      document.documentElement.classList.remove("dark");
-    }
-  }, [isDarkMode]);
-
-  // Handle theme change
+  // Optimized theme change handler
   const handleThemeChange = (newIsDarkMode) => {
-    setIsDarkMode(newIsDarkMode);
+    setTheme(newIsDarkMode);
   };
 
   const shapes = {
@@ -547,6 +526,108 @@ const HomePage = () => {
     setShowHistory(false);
   };
 
+  // Tab transition state
+  const [isTransitioning, setIsTransitioning] = useState(false);
+  const [previousTab, setPreviousTab] = useState("generate");
+
+  // Handle tab change with smooth transition
+  const handleTabChange = (newTab) => {
+    if (newTab === activeTab) return;
+    
+    setIsTransitioning(true);
+    setPreviousTab(activeTab);
+    
+    // Small delay to trigger exit animation
+    setTimeout(() => {
+      setActiveTab(newTab);
+      setTimeout(() => {
+        setIsTransitioning(false);
+      }, 50);
+    }, 100);
+  };
+
+  // Render active tab content
+  const renderTabContent = () => {
+    const tabProps = {
+      className: `w-full transition-all duration-500 ease-in-out transform ${
+        isTransitioning 
+          ? "translate-x-36 opacity-0" 
+          : "translate-x-0 opacity-100"
+      }`,
+      style: {
+        position: "relative",
+        userSelect: "none",
+        maxWidth: "unset",
+      }
+    };
+
+    switch (activeTab) {
+      case "generate":
+        return (
+          <div {...tabProps}>
+            <GenerateTab
+              inputPrompt={inputPrompt}
+              setInputPrompt={setInputPrompt}
+              imageUrl={imageUrl}
+              isLoading={isLoading}
+              imageLoaded={imageLoaded}
+              error={error}
+              progress={progress}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              selectedShape={selectedShape}
+              setSelectedShape={setSelectedShape}
+              seed={seed}
+              setSeed={setSeed}
+              removeWatermark={removeWatermark}
+              setRemoveWatermark={setRemoveWatermark}
+              width={width}
+              height={height}
+              setWidth={setWidth}
+              setHeight={setHeight}
+              shapes={shapes}
+              models={models}
+              examplePrompts={examplePrompts}
+              handleGenerateClick={handleGenerateClick}
+              handleImageLoadComplete={handleImageLoadComplete}
+              handleImageLoadError={handleImageLoadError}
+              handleExampleClick={handleExampleClick}
+              handleConfusedClick={handleConfusedClick}
+              handleGenerateRandomPrompt={handleGenerateRandomPrompt}
+              isGeneratingRandom={isGeneratingRandom}
+            />
+          </div>
+        );
+      case "enhance":
+        return (
+          <div {...tabProps}>
+            <EnhanceTab
+              inputPrompt={inputPrompt}
+              setInputPrompt={setInputPrompt}
+              isEnhancing={isEnhancing}
+              handleEnhancePrompt={handleEnhancePrompt}
+            />
+          </div>
+        );
+      case "history":
+        return (
+          <div {...tabProps}>
+            <HistoryTab
+              history={history}
+              setInputPrompt={setInputPrompt}
+              setActiveTab={handleTabChange}
+              handleDeleteHistoryItem={handleDeleteHistoryItem}
+              handleClearAllHistory={handleClearAllHistory}
+            />
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
+
+
+
   return (
     <div className="app-container">
       {/* Header */}
@@ -566,7 +647,9 @@ const HomePage = () => {
       {/* Hero Section */}
       <section className="hero">
         <div className="container">
-          <h2 className="hero-title">Create Stunning Images with AI</h2>
+          <h2 className="hero-title">
+            Create Stunning Images with AI
+          </h2>
           <p className="hero-subtitle">
             <TypewriterEffect />
           </p>
@@ -579,70 +662,23 @@ const HomePage = () => {
           {/* Tab Navigation */}
           <TabNavigation
             activeTab={activeTab}
-            setActiveTab={setActiveTab}
+            setActiveTab={handleTabChange}
             historyCount={history.length}
           />
 
           {/* Tab Content */}
-          <div className="tab-content">
-            {activeTab === "generate" && (
-              <GenerateTab
-                key="generate"
-                inputPrompt={inputPrompt}
-                setInputPrompt={setInputPrompt}
-                imageUrl={imageUrl}
-                isLoading={isLoading}
-                imageLoaded={imageLoaded}
-                error={error}
-                progress={progress}
-                selectedModel={selectedModel}
-                setSelectedModel={setSelectedModel}
-                selectedShape={selectedShape}
-                setSelectedShape={setSelectedShape}
-                seed={seed}
-                setSeed={setSeed}
-                removeWatermark={removeWatermark}
-                setRemoveWatermark={setRemoveWatermark}
-                width={width}
-                height={height}
-                setWidth={setWidth}
-                setHeight={setHeight}
-                shapes={shapes}
-                models={models}
-                examplePrompts={examplePrompts}
-                handleGenerateClick={handleGenerateClick}
-                handleImageLoadComplete={handleImageLoadComplete}
-                handleImageLoadError={handleImageLoadError}
-                handleExampleClick={handleExampleClick}
-                handleConfusedClick={handleConfusedClick}
-                handleGenerateRandomPrompt={handleGenerateRandomPrompt}
-                isGeneratingRandom={isGeneratingRandom}
-              />
-            )}
-
-            {activeTab === "enhance" && (
-              <EnhanceTab
-                key="enhance"
-                inputPrompt={inputPrompt}
-                setInputPrompt={setInputPrompt}
-                isEnhancing={isEnhancing}
-                handleEnhancePrompt={handleEnhancePrompt}
-              />
-            )}
-
-            {activeTab === "history" && (
-              <HistoryTab
-                key="history"
-                history={history}
-                setInputPrompt={setInputPrompt}
-                setActiveTab={setActiveTab}
-                handleDeleteHistoryItem={handleDeleteHistoryItem}
-                handleClearAllHistory={handleClearAllHistory}
-              />
-            )}
+          <div className="tab-content w-full">
+            {renderTabContent()}
           </div>
         </div>
       </main>
+
+      {/* Category Cards Section */}
+      <section className="category-cards-section py-20">
+        <div className="container">
+          <CategoryCards onPromptSelect={handleExampleClick} />
+        </div>
+      </section>
 
       {/* Text Scroll Section */}
       <section className="text-scroll-section py-20">
@@ -651,7 +687,7 @@ const HomePage = () => {
             <TextScroll
               className="font-display text-center text-4xl font-semibold tracking-tighter md:text-7xl md:leading-[5rem] w-full [&>*>*>span]:!text-current [&_span]:!text-current"
               text="Generate • Enhance • Transform • Create • Inspire • "
-              default_velocity={2}
+              default_velocity={5}
             />
           </div>
         </div>

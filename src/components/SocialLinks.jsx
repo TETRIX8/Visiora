@@ -1,7 +1,6 @@
 import React from "react"
 import { SparklesIcon } from "lucide-react"
 
-import { Badge } from "./ui/badge"
 import FlipLink from "./ui/text-effect-flipper"
 import "./SocialLinks.css"
 
@@ -80,13 +79,12 @@ export default function SocialLinks() {
     <section className="mx-auto my-12 w-full max-w-4xl rounded-[24px] border border-black/5 p-2 shadow-sm dark:border-white/5 md:rounded-t-[44px]">
       <div className="relative mx-auto w-full rounded-[24px] border border-black/5 bg-neutral-800/5 shadow-sm dark:border-white/5 md:gap-8 md:rounded-b-[20px] md:rounded-t-[40px]">
         <article className="z-50 mt-20 flex flex-col items-center justify-center">
-          <Badge
-            variant="outline"
-            className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5"
+          <div
+            className="mb-3 rounded-[14px] border border-black/10 bg-white text-base dark:border-white/5 dark:bg-neutral-800/5 inline-flex items-center px-3 py-1"
           >
             <SparklesIcon className="mr-2 h-4 w-4 fill-[#EEBDE0] stroke-1 text-neutral-800" />
             Contact Me
-          </Badge>
+          </div>
         </article>
         
         <section className="h-full">
