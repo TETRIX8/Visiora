@@ -3,11 +3,13 @@ import React, { useState, useEffect, Suspense, lazy, useCallback, useMemo } from
 import { AnimatePresence } from "framer-motion";
 import { generateRandomPrompt } from "./api/pollinationService";
 import useTheme from "./hooks/useTheme";
+import useLocalStorage from "./hooks/useLocalStorage";
 
 // Layout Components
 import AnimatedBackground from "./components/layout/AnimatedBackground";
 import Header from "./components/layout/Header";
 import Hero from "./components/layout/Hero";
+import Footer from "./components/layout/Footer";
 
 // Tab Components
 import ModernTabNavigation from "./components/tabs/ModernTabNavigation";
@@ -37,7 +39,6 @@ function App() {
   const [imageLoaded, setImageLoaded] = useState(false);
   const [error, setError] = useState(null);
   const [progress, setProgress] = useState(0);
-  const [history, setHistory] = useState([]);
   const [activeTab, setActiveTab] = useState("generate");
 
   // Generation settings
@@ -55,6 +56,9 @@ function App() {
   // Theme management
   const { isDarkMode, setTheme } = useTheme();
 
+  // Use custom localStorage hook for better performance
+  const [history, setHistory, clearHistory] = useLocalStorage("visiora-history", []);
+
   // Memoized configuration objects for better performance
   const shapes = useMemo(() => ({
     landscape: { width: 1344, height: 768, label: "Landscape (16:9)" },
@@ -70,31 +74,6 @@ function App() {
     { value: "turbo", label: "Turbo (Fastest)" },
     { value: "kontext", label: "Kontext (Artistic)" },
   ]), []);
-
-  // Load history from localStorage on mount
-  useEffect(() => {
-    const savedHistory = localStorage.getItem("visiora-history");
-    if (savedHistory) {
-      try {
-        const parsedHistory = JSON.parse(savedHistory);
-        setHistory(parsedHistory);
-      } catch (error) {
-        console.error("Error loading history:", error);
-        localStorage.removeItem("visiora-history");
-      }
-    }
-  }, []);
-
-  // Debounced save to localStorage
-  useEffect(() => {
-    const timeoutId = setTimeout(() => {
-      if (history.length > 0) {
-        localStorage.setItem("visiora-history", JSON.stringify(history));
-      }
-    }, 500);
-
-    return () => clearTimeout(timeoutId);
-  }, [history]);
 
   // Memoized progress simulation
   const simulateProgress = useCallback(() => {
@@ -181,7 +160,7 @@ function App() {
       setProgress(0);
       clearInterval(progressInterval);
     }
-  }, [inputPrompt, selectedModel, selectedShape, seed, removeWatermark, width, height, shapes, simulateProgress]);
+  }, [inputPrompt, selectedModel, selectedShape, seed, removeWatermark, width, height, shapes, simulateProgress, setHistory]);
 
   // Optimized image load handlers
   const handleImageLoadComplete = useCallback(() => {
@@ -282,23 +261,12 @@ function App() {
 
   const handleDeleteHistoryItem = useCallback((itemId, event) => {
     event?.stopPropagation();
-    setHistory(prev => {
-      const updatedHistory = prev.filter((item) => item.id !== itemId);
-      
-      if (updatedHistory.length === 0) {
-        localStorage.removeItem("visiora-history");
-      } else {
-        localStorage.setItem("visiora-history", JSON.stringify(updatedHistory));
-      }
-      
-      return updatedHistory;
-    });
-  }, []);
+    setHistory(prev => prev.filter((item) => item.id !== itemId));
+  }, [setHistory]);
 
   const handleClearAllHistory = useCallback(() => {
-    setHistory([]);
-    localStorage.removeItem("visiora-history");
-  }, []);
+    clearHistory();
+  }, [clearHistory]);
 
   // Memoized tab content renderer for better performance
   const renderTabContent = useMemo(() => {
@@ -401,6 +369,9 @@ function App() {
           </AnimatePresence>
         </div>
       </main>
+
+      {/* Footer */}
+      <Footer />
     </div>
   );
 }
