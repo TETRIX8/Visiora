@@ -13,19 +13,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-pink-500 to-red-500',
       examples: [
         {
-          image: '/src/assets/example_images/Anime/1.jpg',
+          image: '/assets/example_images/Anime/1.jpg',
           prompt: 'Anime-style pirate girl with wind-swept coat standing on the bow of a ship soaring over giant waves, colorful sky with drifting clouds and soaring seagulls, steampunk-inspired goggles on her head, treasure map in one hand, confident smirk on her face, uniquely designed crew flag fluttering behind, stylized ship with fantastical elements like rotating propellers and wooden dragon carvings, vivid cel-shaded coloring, dynamic angle, 4K anime cinematic quality'
         },
         {
-          image: '/src/assets/example_images/Anime/2.jpg',
+          image: '/assets/example_images/Anime/2.jpg',
           prompt: 'Epic anime-style samurai duel on a misty mountain cliff at sunset, fiery sky in the background, cherry blossom petals flying, both warriors with torn haori and glowing swords, high-speed motion lines, cinematic composition, rich traditional Japanese color palette, 8K stylized anime painting'
         },
         {
-          image: '/src/assets/example_images/Anime/3.jpg',
+          image: '/assets/example_images/Anime/3.jpg',
           prompt: 'Anime-style cozy indoor scene of a girl sitting by the window sipping tea, raindrops on the glass, soft ambient light, bookshelf in the background, cat sleeping nearby, warm color tones, gentle expression, aesthetic Ghibli-style art, ultra-detailed, 4K resolution'
         },
         {
-          image: '/src/assets/example_images/Anime/4.jpg',
+          image: '/assets/example_images/Anime/4.jpg',
           prompt: 'Anime-style magical girl in a ruined city, glowing magical circle beneath her feet, shattered buildings in the background, floating embers, scarred face and broken wand, duality of innocence and power, dark clouds above, cinematic angle, moody lighting, stylized in detailed anime art'
         }
       ]
@@ -37,19 +37,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-green-500 to-emerald-500',
       examples: [
         {
-          image: '/src/assets/example_images/Nature/1.jpg',
+          image: '/assets/example_images/Nature/1.jpg',
           prompt: 'A serene forest with dew-covered grass, golden morning sunlight piercing through tall trees, photorealistic textures, soft mist, birds in flight, 8K natural scenery'
         },
         {
-          image: '/src/assets/example_images/Nature/2.jpg',
+          image: '/assets/example_images/Nature/2.jpg',
           prompt: 'Massive floating islands covered with lush green forests and cascading waterfalls, connected by glowing vines, warm sky tones, fantasy artwork, painterly style, high detail'
         },
         {
-          image: '/src/assets/example_images/Nature/3.jpg',
+          image: '/assets/example_images/Nature/3.jpg',
           prompt: 'A moody cinematic scene of storm clouds rolling over a rugged mountain valley, with lightning strikes and wind-blown trees, epic lighting, dramatic realism, 4K scene composition'
         },
         {
-          image: '/src/assets/example_images/Nature/4.jpg',
+          image: '/assets/example_images/Nature/4.jpg',
           prompt: 'A peaceful Japanese Zen garden with white gravel patterns, bonsai trees, a small wooden bridge over a koi pond, minimalist art style with soft pastel tones and clean aesthetic'
         }
       ]
@@ -61,19 +61,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-purple-500 to-indigo-500',
       examples: [
         {
-          image: '/src/assets/example_images/Space/1.jpg',
+          image: '/assets/example_images/Space/1.jpg',
           prompt: 'A lone astronaut standing under a violet sky, strange glowing rocks surrounding them, twin moons in the background, detailed sci-fi concept art, cinematic lighting'
         },
         {
-          image: '/src/assets/example_images/Space/2.jpg',
+          image: '/assets/example_images/Space/2.jpg',
           prompt: 'Looking out from a futuristic space station window at a massive spiral galaxy, glowing star systems, 3D rendered, high contrast and clarity, sci-fi ambience'
         },
         {
-          image: '/src/assets/example_images/Space/3.jpg',
+          image: '/assets/example_images/Space/3.jpg',
           prompt: 'A surreal floating garden in space, with plants growing in zero gravity, stars shimmering all around, painterly fantasy style, dreamlike and vibrant, concept design aesthetic'
         },
         {
-          image: '/src/assets/example_images/Space/4.jpg',
+          image: '/assets/example_images/Space/4.jpg',
           prompt: 'A spacecraft being pulled into a wormhole, intense color distortion, glowing particles, bending light physics, ultra-detailed visualization in science-illustration style'
         }
       ]
@@ -85,19 +85,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-cyan-500 to-blue-500',
       examples: [
         {
-          image: '/src/assets/example_images/Streets/1.jpg',
+          image: '/assets/example_images/Streets/1.jpg',
           prompt: 'A neon-lit street with holographic ads, flying cars above, people in glowing techwear, reflections on wet asphalt, Blade Runner vibes, ultra-detailed cyberpunk concept art'
         },
         {
-          image: '/src/assets/example_images/Streets/2.jpg',
+          image: '/assets/example_images/Streets/2.jpg',
           prompt: 'Old cobblestone street in Paris during rain, people with umbrellas, warm shop lights reflecting off wet pavement, photorealistic lighting, cozy and cinematic mood'
         },
         {
-          image: '/src/assets/example_images/Streets/3.jpg',
+          image: '/assets/example_images/Streets/3.jpg',
           prompt: 'Busy street in 1980s Manhattan, yellow cabs, neon signs, vintage billboards, grainy photo style, rich in retro detail'
         },
         {
-          image: '/src/assets/example_images/Streets/4.jpg',
+          image: '/assets/example_images/Streets/4.jpg',
           prompt: 'A quiet urban alley lit by a golden sunset, long shadows, dust particles in the air, strong depth and lighting, DSLR photography look, cinematic framing'
         }
       ]
@@ -109,19 +109,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-orange-500 to-red-500',
       examples: [
         {
-          image: '/src/assets/example_images/Ghibli-Pixar/1.jpg',
+          image: '/assets/example_images/Ghibli-Pixar/1.jpg',
           prompt: 'A cozy rural village with windmills, green hills, and warm sunlight, stylized painterly textures, whimsical Ghibli charm, clouds drifting in a blue sky, animated vibe'
         },
         {
-          image: '/src/assets/example_images/Ghibli-Pixar/2.jpg',
+          image: '/assets/example_images/Ghibli-Pixar/2.jpg',
           prompt: 'A cute, round robot with expressive digital eyes, rolling through a futuristic lab, 3D Pixar-style rendering, bright color palette, stylized metallic textures'
         },
         {
-          image: '/src/assets/example_images/Ghibli-Pixar/3.jpg',
+          image: '/assets/example_images/Ghibli-Pixar/3.jpg',
           prompt: 'A magical bakery floating on a cloud, smoke puffing from its chimney, flying pastries around, pastel color scheme, Ghibli-Pixar fusion, fantasy 3D cartoon look'
         },
         {
-          image: '/src/assets/example_images/Ghibli-Pixar/4.jpg',
+          image: '/assets/example_images/Ghibli-Pixar/4.jpg',
           prompt: 'A young explorer sailing a colorful boat across calm cartoon oceans, stylized waves and sky, expressive character design, Pixar short-film quality'
         }
       ]
@@ -133,19 +133,19 @@ const ExamplePromptsGrid = ({ onPromptSelect }) => {
       gradient: 'from-yellow-500 to-pink-500',
       examples: [
         {
-          image: '/src/assets/example_images/Misc/1.jpg',
+          image: '/assets/example_images/Misc/1.jpg',
           prompt: 'A human head split open with galaxies and memories spilling out, surreal art style, symbolic, dreamlike elements, soft brushwork and contrast'
         },
         {
-          image: '/src/assets/example_images/Misc/2.jpg',
+          image: '/assets/example_images/Misc/2.jpg',
           prompt: 'A minimalist futuristic living room with smooth white surfaces, floating furniture, ambient lighting, clean design aesthetics, 3D architectural render'
         },
         {
-          image: '/src/assets/example_images/Misc/3.jpg',
+          image: '/assets/example_images/Misc/3.jpg',
           prompt: 'A dark, twisted forest under a blood moon, thick fog covering the ground, shadowy figures in the background, horror aesthetic, cinematic thriller tone'
         },
         {
-          image: '/src/assets/example_images/Misc/4.jpg',
+          image: '/assets/example_images/Misc/4.jpg',
           prompt: 'Floating neon geometric shapes over a dark background, glowing edges, vaporwave-inspired color palette, high-tech abstract art, sharp lighting effects'
         }
       ]

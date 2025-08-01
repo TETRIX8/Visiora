@@ -23,7 +23,7 @@ const Header = ({ isDarkMode, onThemeChange }) => {
             <div className="relative">
               <div className="w-10 h-10 rounded-full overflow-hidden shadow-lg">
                 <img 
-                  src="/src/assets/logo/logo.jpg" 
+                  src="/assets/logo/logo.jpg" 
                   alt="Visiora Logo" 
                   className="w-full h-full object-cover"
                 />
