@@ -4,7 +4,7 @@
 
 **Where Every Image Radiates an Aura of Imagination**
 
-Transform your ideas into stunning visuals with advanced AI technology. Visiora is a modern, intuitive image generation platform that harnesses the power of cutting-edge AI models to bring your creative visions to life.
+Transform your ideas into stunning visuals with advanced AI technology. Visiora is a modern, intuitive image generation platform featuring glassmorphic design, dark/light themes, and seamless user experience.
 
 ## 🌟 Live Demo
 
@@ -20,19 +20,20 @@ Transform your ideas into stunning visuals with advanced AI technology. Visiora 
 - **Random Prompt Generation**: AI-generated creative prompts by category
 - **Flexible Dimensions**: Multiple aspect ratios and custom sizing options
 
-### 🎨 **User Experience**
+### 🎨 **Modern UI/UX**
 
-- **Three-Tab Interface**: Generate, Enhance, and History sections
-- **Animated Typewriter Effect**: Dynamic tagline with rotating messages
-- **Example Prompts**: Pre-built prompts with preview images
-- **Real-time Progress**: Visual feedback during image generation
-- **Responsive Design**: Optimized for desktop and mobile devices
+- **Glassmorphic Design**: Beautiful blur effects and transparent elements
+- **Dark/Light Theme Toggle**: Smooth transitions with localStorage persistence
+- **Three-Tab Interface**: Generate, Enhance, and History sections with animated transitions
+- **Animated Text Scroll**: Dynamic tagline with rotating creative messages
+- **Interactive Modal Views**: Glass-effect image viewer with centered display
+- **Responsive Design**: Optimized for desktop, tablet, and mobile devices
 
 ### 🛠️ **Advanced Features**
 
-- **Generation History**: Keep track of all your created images (350x250 preview)
-- **History Management**: Delete individual items or clear all with confirmation
-- **Prompt Copying**: Easy copy-to-clipboard functionality
+- **Generation History**: Keep track of all your created images with glassmorphic modal
+- **Smart History Management**: View, download, and delete images with confirmation
+- **Prompt Reuse**: One-click prompt copying for quick iterations
 - **Image Download**: Save generated images directly to your device
 - **Seed Control**: Reproducible results with custom seed values
 - **Style Presets**: Quick apply professional enhancement styles
@@ -118,11 +119,11 @@ yarn build
 
 ### 3. **History Tab**
 
-- View all your generated images (350x250 preview)
-- Click "🔄 Use Prompt" to reuse any prompt
-- "📋 Copy" to copy prompts to clipboard
-- "📥 Download" to save images
-- "🗑️ Delete" individual items or "🗑️ Clear All" with confirmation
+- View all generated images in a clean grid layout
+- **Glass-Effect Modal**: Click "View" for immersive full-screen image viewing
+- **Smart Actions**: Use Prompt, Download, or Delete with confirmations
+- **No Copy Button**: Streamlined interface focused on essential actions
+- **Responsive Grid**: Optimized viewing on all device sizes
 
 ## 🔧 Technical Stack
 
@@ -130,7 +131,10 @@ yarn build
 
 - **React 18**: Modern React with hooks and functional components
 - **Vite**: Lightning-fast build tool and development server
-- **CSS3**: Custom styling with CSS variables and animations
+- **Framer Motion**: Smooth animations and text scroll effects
+- **Lucide React**: Beautiful icon set for consistent UI
+- **Tailwind CSS**: Utility-first CSS framework for rapid styling
+- **Custom CSS**: Glassmorphic effects and theme system
 - **JavaScript ES6+**: Modern JavaScript features
 
 ### APIs & Services
@@ -141,37 +145,44 @@ yarn build
 ### Key Features Implementation
 
 - **LocalStorage**: Persistent history and theme preferences
-- **CSS Animations**: Smooth transitions and typewriter effects
+- **Glassmorphic Design**: Advanced blur effects with backdrop-filter
+- **Theme System**: Dynamic dark/light mode with smooth transitions
 - **Responsive Design**: Mobile-first approach with flexible layouts
 - **Error Handling**: Graceful fallbacks and user feedback
+- **Component Architecture**: Modular, reusable React components
 
 ## 📁 Project Structure
 
 ```
 src/
 ├── api/
-│   └── pollinationService.js    # API integration for AI services
+│   └── pollinationService.js    # AI service integration
 ├── assets/
-│   ├── example_images/          # Sample prompt images
+│   ├── example_images/          # Sample prompt images organized by category
 │   └── logo/                    # Brand assets
 ├── components/
 │   ├── EnhanceTab.jsx          # Prompt enhancement interface
 │   ├── EnhanceTab.css          # Enhancement styling
-│   ├── GenerateTab.jsx         # Main generation interface
+│   ├── GenerateTab.jsx         # Main generation interface  
 │   ├── GenerateTab.css         # Generation styling
-│   ├── HistoryTab.jsx          # History management
-│   ├── HistoryTab.css          # History styling
+│   ├── HistoryTab.jsx          # History management with glass modal
+│   ├── HistoryTab.css          # History styling and glassmorphic effects
 │   ├── ImageDisplay.jsx        # Image display component
 │   ├── TabNavigation.jsx       # Tab switching interface
 │   ├── TabNavigation.css       # Navigation styling
 │   ├── TypewriterEffect.jsx    # Animated text component
-│   └── TypewriterEffect.css    # Typewriter animations
+│   ├── TypewriterEffect.css    # Typewriter animations
+│   └── ui/                     # UI component library
+│       ├── theme-toggle-button.jsx  # Theme switcher component
+│       ├── theme-toggle-button.css  # Theme toggle styling
+│       ├── text-scroll.tsx     # Framer Motion text scroll
+│       └── category-cards.jsx  # Category selection cards
 ├── pages/
-│   └── HomePage.jsx            # Main application page
+│   └── HomePage.jsx            # Main application page with theme management
 ├── App.jsx                     # Root component
-├── App.css                     # Global styles
+├── App.css                     # Global styles and theme variables
 ├── main.jsx                    # Application entry point
-└── index.css                   # Base styles
+└── index.css                   # Base styles and Tailwind imports
 ```
 
 ## 🎨 Features in Detail
@@ -199,13 +210,27 @@ src/
 - **Camera**: Portrait, wide angle, close-up, macro, telephoto
 - **Mood**: Ethereal, dramatic, serene, mysterious, vibrant
 
-## 🌈 Theme Support
+## 🌈 Theme & Design System
 
-Visiora supports both light and dark themes with automatic persistence:
+Visiora features a sophisticated design system with modern glassmorphic aesthetics:
 
-- **Dark Theme**: Professional, eye-friendly default
-- **Light Theme**: Clean, bright alternative
-- **Auto-Save**: Theme preference saved to localStorage
+### Theme Support
+- **Dark Theme**: Professional, eye-friendly default with deep purples and blues
+- **Light Theme**: Clean, bright alternative with subtle gradients
+- **Auto-Persistence**: Theme preference automatically saved to localStorage
+- **Smooth Transitions**: Seamless switching with CSS transitions
+
+### Glassmorphic Design
+- **Backdrop Blur**: Advanced blur effects using backdrop-filter
+- **Transparent Layers**: Subtle transparency with layered depth
+- **Glass Modal**: Immersive image viewing experience
+- **Modern Aesthetics**: Contemporary design following latest UI trends
+
+### Component Architecture
+- **Modular Design**: Reusable components with consistent styling
+- **Responsive Grid**: Adaptive layouts for all screen sizes
+- **Icon System**: Lucide React icons for consistent visual language
+- **Animation Framework**: Framer Motion for smooth interactions
 
 ## 📱 Responsive Design
 
@@ -225,15 +250,27 @@ Visiora supports both light and dark themes with automatic persistence:
 ### Scripts
 
 ```bash
-npm run dev          # Start development server
-npm run build        # Build for production
-npm run preview      # Preview production build
-npm run lint         # Run ESLint checks
+npm run dev          # Start development server with HMR
+npm run build        # Build optimized production bundle
+npm run preview      # Preview production build locally
+npm run lint         # Run ESLint checks for code quality
 ```
 
 ### Environment Setup
 
-The project uses Vite for development with hot module replacement (HMR) for instant updates during development.
+The project uses Vite for lightning-fast development with:
+- **Hot Module Replacement (HMR)**: Instant updates during development
+- **Modern Build System**: Optimized bundling and tree-shaking
+- **TypeScript Support**: Built-in TS support for type safety
+- **CSS Processing**: PostCSS with Tailwind integration
+
+### Development Guidelines
+
+1. **Component Structure**: Follow React functional component patterns
+2. **Styling Approach**: Use Tailwind utilities with custom CSS for complex effects
+3. **Theme Integration**: Ensure all components respect theme variables
+4. **Responsive Design**: Mobile-first approach with progressive enhancement
+5. **Performance**: Optimize images and lazy-load content where appropriate
 
 ## 🤝 Contributing
 

@@ -1,0 +1,108 @@
+/* Modern Theme Toggle Button Styles */
+
+.theme-toggle {
+  background: var(--bg-input);
+  border: 1px solid var(--border-color);
+  border-radius: 50%;
+  padding: 0.5rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  width: 44px;
+  height: 44px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.theme-toggle:hover {
+  border-color: var(--border-hover);
+  transform: scale(1.05);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.theme-toggle-sr {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.theme-toggle__within {
+  color: var(--text-primary);
+  transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  font-size: 20px;
+  width: 20px;
+  height: 20px;
+}
+
+.theme-toggle__within__circle {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+.theme-toggle__within__inner {
+  transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+  transform-origin: center;
+}
+
+/* Dark mode animations */
+[data-theme="dark"] .theme-toggle__within__circle {
+  transform: translate(4px, -4px);
+}
+
+[data-theme="dark"] .theme-toggle__within__inner {
+  transform: translate(4px, -4px) scale(0.6);
+}
+
+/* Light mode styles */
+[data-theme="light"] .theme-toggle {
+  background: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="light"] .theme-toggle:hover {
+  background: var(--accent-bg);
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+[data-theme="light"] .theme-toggle__within {
+  color: var(--text-primary);
+}
+
+/* Dark mode styles */
+[data-theme="dark"] .theme-toggle {
+  background: var(--bg-input);
+  border-color: var(--border-color);
+  color: var(--text-primary);
+}
+
+[data-theme="dark"] .theme-toggle:hover {
+  background: var(--accent-bg);
+  border-color: var(--border-hover);
+  box-shadow: 0 4px 12px rgba(255, 255, 255, 0.1);
+}
+
+/* Mobile responsiveness */
+@media (max-width: 768px) {
+  .theme-toggle {
+    width: 40px;
+    height: 40px;
+    font-size: 1rem;
+  }
+
+  .theme-toggle__within {
+    font-size: 18px;
+    width: 18px;
+    height: 18px;
+  }
+}

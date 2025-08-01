@@ -1,6 +1,7 @@
 // src/components/GenerateTab.jsx
 
 import React from "react";
+import { Zap, Bot, Sparkles } from "lucide-react";
 import ImageDisplay from "./ImageDisplay";
 import "./GenerateTab.css";
 
@@ -45,15 +46,15 @@ const GenerateTab = ({
               <h3>Describe your image</h3>
               <div className="header-buttons">
                 <button
-                  className="random-btn"
+                  className="try-prompt-btn quick-btn"
                   onClick={handleConfusedClick}
                   title="Get quick random prompt"
                 >
-                  <span className="random-icon">⚡</span>
+                  <Zap size={14} />
                   Quick
                 </button>
                 <button
-                  className="ai-random-btn"
+                  className="try-prompt-btn ai-random-btn"
                   onClick={() => handleGenerateRandomPrompt()}
                   disabled={isGeneratingRandom}
                   title="Generate AI-powered creative prompt"
@@ -65,7 +66,7 @@ const GenerateTab = ({
                     </>
                   ) : (
                     <>
-                      <span className="ai-icon">🤖</span>
+                      <Bot size={14} />
                       AI Random
                     </>
                   )}
@@ -222,7 +223,7 @@ const GenerateTab = ({
           <button
             onClick={handleGenerateClick}
             disabled={isLoading || !inputPrompt.trim()}
-            className="generate-btn"
+            className="try-prompt-btn generate-btn"
           >
             {isLoading ? (
               <>
@@ -231,7 +232,7 @@ const GenerateTab = ({
               </>
             ) : (
               <>
-                <span className="generate-icon">✨</span>
+                <Sparkles size={16} />
                 Generate Image
               </>
             )}

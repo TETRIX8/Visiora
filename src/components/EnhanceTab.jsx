@@ -1,6 +1,7 @@
 // src/components/EnhanceTab.jsx
 
 import React, { useState } from "react";
+import { Sparkles, Wand2, X } from "lucide-react";
 import "./EnhanceTab.css";
 
 const EnhanceTab = ({
@@ -195,7 +196,7 @@ const EnhanceTab = ({
             <button
               onClick={handleEnhancePrompt}
               disabled={isEnhancing || !inputPrompt.trim()}
-              className="ai-enhance-btn"
+              className="try-prompt-btn ai-enhance-btn"
             >
               {isEnhancing ? (
                 <>
@@ -204,7 +205,7 @@ const EnhanceTab = ({
                 </>
               ) : (
                 <>
-                  <span className="ai-icon">⚡</span>
+                  <Sparkles size={16} />
                   Enhance Prompt
                 </>
               )}
@@ -255,14 +256,16 @@ const EnhanceTab = ({
             <span className="section-icon">🛠️</span>
             <h3>Manual Enhancement</h3>
             <div className="style-controls">
-              <button onClick={clearStyles} className="clear-btn">
+              <button onClick={clearStyles} className="try-prompt-btn clear-btn">
+                <X size={14} />
                 Clear All
               </button>
               <button
                 onClick={enhanceWithStyles}
                 disabled={selectedStyles.length === 0 || !inputPrompt.trim()}
-                className="apply-styles-btn"
+                className="try-prompt-btn apply-styles-btn"
               >
+                <Wand2 size={14} />
                 Apply Styles ({selectedStyles.length})
               </button>
             </div>

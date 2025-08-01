@@ -1,0 +1,84 @@
+.social-icon {
+  transition: all 0.5s ease-in-out;
+  position: relative;
+}
+
+.social-icon rect {
+  fill: #D9D9D9;
+  transition: all 0.5s ease-in-out;
+}
+
+/* Icon path colors - black in light mode, white in dark mode */
+.social-icon path {
+  transition: all 0.5s ease-in-out;
+}
+/* Light mode - icon should be black */
+[data-theme="light"] .social-icon path {
+  fill: #000000;
+}
+
+/* Dark mode - icon should be white */
+[data-theme="dark"] .social-icon path {
+  background-color: #fff;
+}
+
+[data-theme="dark"] .group:hover .social-icon path {
+    fill: #fff;
+}
+
+[data-theme="light"] .group:hover .social-icon path {
+    fill: #000000;
+}
+
+/* Create gradient background overlay on hover */
+.social-icon::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 86px;
+  height: 86px;
+  background: var(--gradient);
+  border-radius: 14px;
+  opacity: 0;
+  transition: opacity 0.5s ease-in-out;
+  pointer-events: none;
+}
+
+.group:hover .social-icon::before {
+  opacity: 1;
+}
+
+.group:hover .social-icon rect {
+  fill: transparent;
+}
+
+/* FlipLink text colors */
+[data-theme="light"] .group a {
+  color: #000000 !important;
+}
+
+[data-theme="dark"] .group a {
+  color: #ffffff !important;
+}
+
+/* Ensure Twitter icon is properly centered */
+.social-icon svg {
+  display: block;
+  margin: 0 auto;
+}
+
+/* Text color adjustments */
+.social-text {
+  color: black;
+  transition: color 0.3s ease;
+}
+
+.dark .social-text {
+  color: white;
+}
+
+/* Badge icon color fix for dark mode */
+.dark .badge-icon {
+  color: white !important;
+}

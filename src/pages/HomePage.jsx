@@ -7,6 +7,9 @@ import GenerateTab from "../components/GenerateTab";
 import EnhanceTab from "../components/EnhanceTab";
 import HistoryTab from "../components/HistoryTab";
 import TypewriterEffect from "../components/TypewriterEffect";
+import ThemeToggleButton from "../components/ui/theme-toggle-button";
+import SocialLinks from "../components/SocialLinks";
+import { TextScroll } from "../components/ui/text-scroll";
 import { generateRandomPrompt } from "../api/pollinationService";
 
 // Import logo
@@ -102,7 +105,19 @@ const HomePage = () => {
       "data-theme",
       isDarkMode ? "dark" : "light"
     );
+    
+    // Also apply to document root for Tailwind dark mode
+    if (isDarkMode) {
+      document.documentElement.classList.add("dark");
+    } else {
+      document.documentElement.classList.remove("dark");
+    }
   }, [isDarkMode]);
+
+  // Handle theme change
+  const handleThemeChange = (newIsDarkMode) => {
+    setIsDarkMode(newIsDarkMode);
+  };
 
   const shapes = {
     landscape: { width: 1344, height: 768, label: "Landscape (16:9)" },
@@ -541,13 +556,10 @@ const HomePage = () => {
             <img src={logo} alt="Visiora" className="logo-image" />
             <span className="logo-text">Visiora</span>
           </div>
-          <button
-            className="theme-toggle"
-            onClick={() => setIsDarkMode(!isDarkMode)}
-            aria-label="Toggle theme"
-          >
-            {isDarkMode ? "☀️" : "🌙"}
-          </button>
+          <ThemeToggleButton 
+            isDarkMode={isDarkMode}
+            onThemeChange={handleThemeChange}
+          />
         </div>
       </header>
 
@@ -632,48 +644,23 @@ const HomePage = () => {
         </div>
       </main>
 
-      {/* Example Prompts */}
-      <section className="examples">
-        <div className="container">
-          <h3 className="section-title">✨ Example Prompts</h3>
-          <p className="section-subtitle">
-            Click on any example to try it out!
-          </p>
-          <div className="examples-grid">
-            {examplePrompts.map((example, index) => (
-              <div
-                key={index}
-                className="example-card"
-                onClick={() => handleExampleClick(example.prompt)}
-              >
-                <div className="example-image">
-                  <img
-                    src={example.image}
-                    alt="Example generated image"
-                    loading="lazy"
-                    onError={(e) => {
-                      e.target.style.display = "none";
-                      e.target.nextElementSibling.style.display = "flex";
-                    }}
-                  />
-                  <div
-                    className="image-error-placeholder"
-                    style={{ display: "none" }}
-                  >
-                    <span>🎨</span>
-                    <p>Image Preview</p>
-                  </div>
-                  <div className="example-overlay">
-                    <span className="try-prompt">✨ Try This Prompt</span>
-                  </div>
-                </div>
-                <div className="example-content">
-                  <h4 className="example-title">{example.title}</h4>
-                  <p className="example-prompt">"{example.prompt}"</p>
-                </div>
-              </div>
-            ))}
+      {/* Text Scroll Section */}
+      <section className="text-scroll-section py-20">
+        <div className="w-full">
+          <div className="text-black dark:text-white">
+            <TextScroll
+              className="font-display text-center text-4xl font-semibold tracking-tighter md:text-7xl md:leading-[5rem] w-full [&>*>*>span]:!text-current [&_span]:!text-current"
+              text="Generate • Enhance • Transform • Create • Inspire • "
+              default_velocity={2}
+            />
           </div>
+        </div>
+      </section>
+
+      {/* Contact Me Section - Just above footer */}
+      <section className="contact-section">
+        <div className="container">
+          <SocialLinks />
         </div>
       </section>
 
@@ -689,31 +676,6 @@ const HomePage = () => {
                   Transform your ideas into stunning visuals with advanced AI
                   technology
                 </p>
-              </div>
-            </div>
-
-            <div className="footer-features">
-              <div className="feature-grid">
-                <div className="feature-item">
-                  <div className="feature-icon">🤖</div>
-                  <h4>Advanced AI Models</h4>
-                  <p>State-of-the-art Flux, Turbo, and Kontext models</p>
-                </div>
-                <div className="feature-item">
-                  <div className="feature-icon">📐</div>
-                  <h4>Flexible Dimensions</h4>
-                  <p>Custom sizing for any creative project</p>
-                </div>
-                <div className="feature-item">
-                  <div className="feature-icon">🎯</div>
-                  <h4>Precision Control</h4>
-                  <p>Reproducible results with seed management</p>
-                </div>
-                <div className="feature-item">
-                  <div className="feature-icon">⭐</div>
-                  <h4>Professional Quality</h4>
-                  <p>High-resolution, commercial-grade output</p>
-                </div>
               </div>
             </div>
           </div>

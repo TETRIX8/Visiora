@@ -1,6 +1,7 @@
 // src/components/HistoryTab.jsx
 
 import React, { useState } from "react";
+import { Trash2, Play, Eye, Download, X } from "lucide-react";
 import "./HistoryTab.css";
 
 const HistoryTab = ({
@@ -40,16 +41,6 @@ const HistoryTab = ({
     } catch (error) {
       console.error("Error downloading image:", error);
       alert("Failed to download image. Please try again.");
-    }
-  };
-
-  const copyToClipboard = async (text) => {
-    try {
-      await navigator.clipboard.writeText(text);
-      alert("Copied to clipboard!");
-    } catch (error) {
-      console.error("Error copying to clipboard:", error);
-      alert("Failed to copy to clipboard.");
     }
   };
 
@@ -122,9 +113,6 @@ const HistoryTab = ({
                   `;
                 }}
               />
-              <div className="image-overlay">
-                <button className="view-btn">👁️ View</button>
-              </div>
             </div>
 
             <div className="history-details">
@@ -148,26 +136,29 @@ const HistoryTab = ({
               <div className="history-actions">
                 <button
                   onClick={() => handleUsePrompt(item.prompt)}
-                  className="use-prompt-btn action-btn"
+                  className="try-prompt-btn action-btn use-prompt-btn"
                   title="Use this prompt"
                 >
+                  <Play size={14} />
                   Use Prompt
                 </button>
                 <button
-                  onClick={() => copyToClipboard(item.prompt)}
-                  className="copy-btn action-btn"
-                  title="Copy prompt"
+                  onClick={() => handleImageClick(item)}
+                  className="try-prompt-btn action-btn view-btn"
+                  title="View full image"
                 >
-                 Copy
+                  <Eye size={14} />
+                  View
                 </button>
                 <button
                   onClick={() =>
                     downloadImage(item.imageUrl, `visiora-${item.id}.png`)
                   }
-                  className="download-btn action-btn"
+                  className="try-prompt-btn action-btn download-btn"
                   title="Download image"
                 >
-                Download
+                  <Download size={14} />
+                  Download
                 </button>
                 <button
                   onClick={(e) => {
@@ -179,10 +170,11 @@ const HistoryTab = ({
                       handleDeleteHistoryItem(item.id, e);
                     }
                   }}
-                  className="delete-btn action-btn"
+                  className="try-prompt-btn action-btn delete-btn"
                   title="Delete image"
                 >
-                   Delete
+                  <Trash2 size={14} />
+                  Delete
                 </button>
               </div>
             </div>
@@ -191,10 +183,10 @@ const HistoryTab = ({
       </div>
 
       {selectedImage && (
-        <div className="image-modal" onClick={handleCloseModal}>
-          <div className="modal-content" onClick={(e) => e.stopPropagation()}>
+        <div className="image-modal glass-backdrop" onClick={handleCloseModal}>
+          <div className="modal-content glass-effect" onClick={(e) => e.stopPropagation()}>
             <button className="close-modal" onClick={handleCloseModal}>
-              ×
+              <X size={20} />
             </button>
 
             <div className="modal-image">
@@ -234,12 +226,6 @@ const HistoryTab = ({
                   className="use-prompt-btn-modal"
                 >
                   Use This Prompt
-                </button>
-                <button
-                  onClick={() => copyToClipboard(selectedImage.prompt)}
-                  className="copy-btn-modal"
-                >
-                  Copy Prompt
                 </button>
                 <button
                   onClick={() =>
