@@ -1,16 +1,22 @@
 import React from "react"
 import { motion } from "framer-motion"
+import { cn } from "../../lib/utils"
 
 const DURATION = 0.25
 const STAGGER = 0.025
 
-export default function FlipLink({ children, href }) {
+export default function FlipLink({ children, href, className }) {
   return (
     <motion.a
       initial="initial"
       whileHover="hovered"
       href={href}
-      className="relative block overflow-hidden whitespace-nowrap text-4xl font-black uppercase sm:text-7xl md:text-8xl lg:text-9xl"
+      target="_blank"
+      rel="noopener noreferrer"
+      className={cn(
+        "relative block overflow-hidden whitespace-nowrap font-black uppercase",
+        className || "text-4xl sm:text-7xl md:text-8xl lg:text-9xl"
+      )}
       style={{
         lineHeight: 0.75,
       }}

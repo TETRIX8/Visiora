@@ -13,8 +13,9 @@ import {
   AlertTriangle
 } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
-import Button from "../ui/Button";
+import CustomButton from "../ui/CustomButton";
 import ExamplePromptsGrid from "../examples/ExamplePromptsGrid";
+import { SocialLinksDemo } from "../ui/SocialLinksDemo";
 import { cn } from "../../utils/cn";
 
 const ModernHistoryTab = memo(({
@@ -85,13 +86,13 @@ const ModernHistoryTab = memo(({
                   Your generated images will appear here. Start creating to build your collection!
                 </p>
               </div>
-              <Button
+              <CustomButton
                 onClick={() => setActiveTab("generate")}
                 variant="primary"
                 className="mt-4"
               >
                 Start Creating
-              </Button>
+              </CustomButton>
             </div>
           </GlassCard>
         </div>
@@ -118,7 +119,7 @@ const ModernHistoryTab = memo(({
           </div>
           
           {history.length > 0 && (
-            <Button
+            <CustomButton
               variant="ghost"
               size="sm"
               onClick={handleClearAllHistory}
@@ -126,7 +127,7 @@ const ModernHistoryTab = memo(({
               className="text-red-400 hover:text-red-300 hover:bg-red-500/10"
             >
               Clear All
-            </Button>
+            </CustomButton>
           )}
         </div>
       </GlassCard>
@@ -201,7 +202,7 @@ const ModernHistoryTab = memo(({
 
                     {/* Actions */}
                     <div className="flex gap-2">
-                      <Button
+                      <CustomButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleUsePrompt(item.prompt)}
@@ -209,15 +210,15 @@ const ModernHistoryTab = memo(({
                         className="flex-1 text-xs"
                       >
                         Use Prompt
-                      </Button>
-                      <Button
+                      </CustomButton>
+                      <CustomButton
                         variant="ghost"
                         size="sm"
                         onClick={() => handleDownload(item.imageUrl, item.prompt)}
                         icon={Download}
                         className="text-xs"
                       />
-                      <Button
+                      <CustomButton
                         variant="ghost"
                         size="sm"
                         onClick={(e) => handleDeleteClick(item.id, e)}
@@ -299,7 +300,7 @@ const ModernHistoryTab = memo(({
 
                   {/* Modal Actions */}
                   <div className="flex gap-3 pt-4 border-t border-white/10">
-                    <Button
+                    <CustomButton
                       onClick={() => {
                         handleUsePrompt(selectedImage.prompt);
                         handleCloseModal();
@@ -309,14 +310,14 @@ const ModernHistoryTab = memo(({
                       className="flex-1"
                     >
                       Use This Prompt
-                    </Button>
-                    <Button
+                    </CustomButton>
+                    <CustomButton
                       onClick={() => handleDownload(selectedImage.imageUrl, selectedImage.prompt)}
                       variant="secondary"
                       icon={Download}
                     >
                       Download
-                    </Button>
+                    </CustomButton>
                   </div>
                 </div>
               </GlassCard>
@@ -357,20 +358,20 @@ const ModernHistoryTab = memo(({
                   </div>
 
                   <div className="flex gap-3">
-                    <Button
+                    <CustomButton
                       variant="ghost"
                       onClick={() => setShowDeleteConfirm(null)}
                       className="flex-1"
                     >
                       Cancel
-                    </Button>
-                    <Button
+                    </CustomButton>
+                    <CustomButton
                       variant="primary"
                       onClick={(e) => confirmDelete(showDeleteConfirm, e)}
                       className="flex-1 bg-red-600 hover:bg-red-700"
                     >
                       Delete
-                    </Button>
+                    </CustomButton>
                   </div>
                 </div>
               </GlassCard>
@@ -381,6 +382,9 @@ const ModernHistoryTab = memo(({
 
       {/* Example Prompts Grid - Full Width */}
       <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
+      
+      {/* Social Links Section */}
+      <SocialLinksDemo />
     </div>
   );
 });

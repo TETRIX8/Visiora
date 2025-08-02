@@ -3,6 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Heart, Github, Twitter, Palette, Sparkles } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
+import TechStackScroll from '../ui/TechStackScroll';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
@@ -53,14 +54,11 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Tech Stack */}
+            {/* Tech Stack - Scrolling Animation */}
             <div className="space-y-4">
               <p className="text-sm text-slate-600 dark:text-white/60">Powered by</p>
-              <div className="flex flex-wrap justify-center gap-4 text-sm">
-                <span className="px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-full text-slate-700 dark:text-white/70">React 19</span>
-                <span className="px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-full text-slate-700 dark:text-white/70">Framer Motion</span>
-                <span className="px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-full text-slate-700 dark:text-white/70">Tailwind CSS</span>
-                <span className="px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-full text-slate-700 dark:text-white/70">Pollinations AI</span>
+              <div className="w-full max-w-4xl mx-auto py-4">
+                <TechStackScroll />
               </div>
             </div>
           </div>

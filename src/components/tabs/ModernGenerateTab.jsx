@@ -12,9 +12,10 @@ import {
   Shuffle
 } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
-import Button from '../ui/Button';
+import CustomButton from '../ui/CustomButton';
+import CustomInput from '../ui/CustomInput';
+import { SocialLinksDemo } from '../ui/SocialLinksDemo';
 import ExamplePromptsGrid from '../examples/ExamplePromptsGrid';
-import Input from '../ui/Input';
 import { cn } from '../../utils/cn';
 
 const ModernGenerateTab = memo(({
@@ -78,7 +79,7 @@ const ModernGenerateTab = memo(({
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Describe Your Vision</h3>
               </div>
               <div className="flex gap-2">
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   onClick={handleConfusedClick}
@@ -86,8 +87,8 @@ const ModernGenerateTab = memo(({
                   className="text-xs"
                 >
                   Quick
-                </Button>
-                <Button
+                </CustomButton>
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   onClick={() => handleGenerateRandomPrompt()}
@@ -97,7 +98,7 @@ const ModernGenerateTab = memo(({
                   className="text-xs"
                 >
                   AI Random
-                </Button>
+                </CustomButton>
               </div>
             </div>
 
@@ -115,7 +116,7 @@ const ModernGenerateTab = memo(({
               <label className="text-sm font-medium text-slate-700 dark:text-white/80">🎨 Quick Categories:</label>
               <div className="grid grid-cols-3 gap-2">
                 {categories.map((category) => (
-                  <Button
+                  <CustomButton
                     key={category.id}
                     variant="ghost"
                     size="sm"
@@ -135,7 +136,7 @@ const ModernGenerateTab = memo(({
                   >
                     <span>{category.icon}</span>
                     {category.label}
-                  </Button>
+                  </CustomButton>
                 ))}
               </div>
             </div>
@@ -194,7 +195,7 @@ const ModernGenerateTab = memo(({
                   transition={{ duration: 0.3 }}
                   className="grid grid-cols-2 gap-4"
                 >
-                  <Input
+                  <CustomInput
                     type="number"
                     label="Width"
                     value={width}
@@ -203,7 +204,7 @@ const ModernGenerateTab = memo(({
                     max="2048"
                     step="64"
                   />
-                  <Input
+                  <CustomInput
                     type="number"
                     label="Height"
                     value={height}
@@ -218,7 +219,7 @@ const ModernGenerateTab = memo(({
 
             {/* Seed and Options */}
             <div className="space-y-4">
-              <Input
+              <CustomInput
                 label="Seed (Optional)"
                 value={seed}
                 onChange={(e) => setSeed(e.target.value)}
@@ -259,7 +260,7 @@ const ModernGenerateTab = memo(({
         </GlassCard>
 
         {/* Generate Button */}
-        <Button
+        <CustomButton
           onClick={handleGenerateClick}
           disabled={isLoading || !inputPrompt.trim()}
           loading={isLoading}
@@ -268,7 +269,7 @@ const ModernGenerateTab = memo(({
           icon={isLoading ? null : Sparkles}
         >
           {isLoading ? `Generating... ${Math.round(progress)}%` : 'Generate Image'}
-        </Button>
+        </CustomButton>
       </div>
 
       {/* Right Panel - Image Display */}
@@ -281,14 +282,14 @@ const ModernGenerateTab = memo(({
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Generated Image</h3>
               </div>
               {imageUrl && imageLoaded && (
-                <Button
+                <CustomButton
                   variant="ghost"
                   size="sm"
                   onClick={handleDownload}
                   icon={Download}
                 >
                   Download
-                </Button>
+                </CustomButton>
               )}
             </div>
 
@@ -387,6 +388,9 @@ const ModernGenerateTab = memo(({
 
     {/* Example Prompts Grid - Full Width */}
     <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
+    
+    {/* Social Links Section */}
+    <SocialLinksDemo />
   </div>
   );
 });

@@ -339,7 +339,7 @@ function App() {
   ]);
 
   return (
-    <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-display transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans transition-colors duration-300">
       {/* Animated Background */}
       <AnimatedBackground />
 

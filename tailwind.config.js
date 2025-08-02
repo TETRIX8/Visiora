@@ -195,9 +195,19 @@ export default {
   		},
   		fontFamily: {
   			display: [
-  				'Inter',
+  				'Montserrat',
   				'system-ui',
   				'sans-serif'
+  			],
+  			sans: [
+  				'Montserrat',
+  				'system-ui',
+  				'sans-serif'
+  			],
+  			mono: [
+  				'Roboto Mono',
+  				'ui-monospace',
+  				'monospace'
   			]
   		},
   		backdropBlur: {

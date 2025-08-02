@@ -1,8 +1,19 @@
 // src/components/layout/AnimatedBackground.jsx
-import React from 'react';
+import React, { useMemo, memo } from 'react';
 import { motion } from 'framer-motion';
 
-const AnimatedBackground = () => {
+const AnimatedBackground = memo(() => {
+  // Generate particles once and memoize them to prevent re-renders
+  const particles = useMemo(() => {
+    return [...Array(20)].map((_, i) => ({
+      id: i,
+      left: Math.random() * 100,
+      top: Math.random() * 100,
+      duration: 10 + Math.random() * 10,
+      delay: Math.random() * 10,
+    }));
+  }, []);
+
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden w-full h-full">
       {/* Gradient Background */}
@@ -50,22 +61,22 @@ const AnimatedBackground = () => {
 
       {/* Floating Particles */}
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {particles.map((particle) => (
           <motion.div
-            key={i}
+            key={particle.id}
             className="absolute w-2 h-2 bg-white/10 rounded-full"
             style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
+              left: `${particle.left}%`,
+              top: `${particle.top}%`,
             }}
             animate={{
               y: [0, -100, 0],
               opacity: [0, 1, 0],
             }}
             transition={{
-              duration: 10 + Math.random() * 10,
+              duration: particle.duration,
               repeat: Infinity,
-              delay: Math.random() * 10,
+              delay: particle.delay,
               ease: "easeInOut"
             }}
           />
@@ -76,6 +87,8 @@ const AnimatedBackground = () => {
       <div className="absolute inset-0 bg-[linear-gradient(rgba(255,255,255,.01)_1px,transparent_1px),linear-gradient(90deg,rgba(255,255,255,.01)_1px,transparent_1px)] bg-[size:4rem_4rem] [mask-image:radial-gradient(ellipse_60%_50%_at_50%_0%,#000_70%,transparent_110%)]" />
     </div>
   );
-};
+});
+
+AnimatedBackground.displayName = 'AnimatedBackground';
 
 export default AnimatedBackground;

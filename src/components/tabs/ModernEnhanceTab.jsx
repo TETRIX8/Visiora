@@ -3,8 +3,9 @@ import React, { useState, memo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Sparkles, Wand2, X, Zap, Stars } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
-import Button from "../ui/Button";
+import CustomButton from "../ui/CustomButton";
 import ExamplePromptsGrid from "../examples/ExamplePromptsGrid";
+import { SocialLinksDemo } from "../ui/SocialLinksDemo";
 import { cn } from "../../utils/cn";
 
 const ModernEnhanceTab = memo(({
@@ -159,7 +160,16 @@ const ModernEnhanceTab = memo(({
   };
 
   const applyPreset = (preset) => {
+    if (!inputPrompt.trim()) {
+      alert("Please enter a prompt first!");
+      return;
+    }
+
     setSelectedStyles(preset.styles);
+    const enhancedPrompt = `${inputPrompt.trim()}, ${preset.styles.join(", ")}`;
+    setInputPrompt(enhancedPrompt);
+
+    // No popup for presets - they just apply the styles instantly
   };
 
   const enhanceWithStyles = () => {
@@ -171,8 +181,13 @@ const ModernEnhanceTab = memo(({
     const enhancedPrompt = `${inputPrompt.trim()}, ${selectedStyles.join(", ")}`;
     setInputPrompt(enhancedPrompt);
 
+    // Clear selected styles after applying
+    setSelectedStyles([]);
+
+    console.log("Applying manual styles, showing popup..."); // Debug log
     setShowStylesAppliedPopup(true);
     setTimeout(() => {
+      console.log("Hiding popup..."); // Debug log
       setShowStylesAppliedPopup(false);
     }, 2000);
   };
@@ -182,9 +197,10 @@ const ModernEnhanceTab = memo(({
   };
 
   return (
-    <div className="space-y-8">
-      {/* AI Prompt Enhancement */}
-      <GlassCard className="border-slate-300 dark:border-white/10">
+    <>
+      <div className="space-y-8">
+        {/* AI Prompt Enhancement */}
+        <GlassCard className="border-slate-300 dark:border-white/10">
         <div className="space-y-6">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-full bg-gradient-to-br from-purple-500 to-pink-500 flex items-center justify-center">
@@ -207,7 +223,7 @@ const ModernEnhanceTab = memo(({
               transition={{ type: "spring", stiffness: 300, damping: 25 }}
             />
 
-            <Button
+            <CustomButton
               onClick={handleEnhancePrompt}
               disabled={isEnhancing || !inputPrompt.trim()}
               loading={isEnhancing}
@@ -216,7 +232,7 @@ const ModernEnhanceTab = memo(({
               className="w-full bg-gradient-to-r from-purple-600 to-pink-600 hover:from-purple-700 hover:to-pink-700"
             >
               {isEnhancing ? "Enhancing with AI..." : "✨ Enhance Prompt with AI"}
-            </Button>
+            </CustomButton>
 
             <p className="text-xs text-slate-600 dark:text-white/60 text-center">
               Our AI will add professional details, lighting, and artistic elements to your prompt
@@ -240,13 +256,10 @@ const ModernEnhanceTab = memo(({
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-4">
             {enhancePresets.map((preset) => (
-              <motion.div
+              <div
                 key={preset.id}
                 className="relative group cursor-pointer"
                 onClick={() => applyPreset(preset)}
-                whileHover={{ scale: 1.02, y: -2 }}
-                whileTap={{ scale: 0.98 }}
-                transition={{ type: "spring", stiffness: 300, damping: 25 }}
               >
                 <div className="relative p-4 rounded-xl border border-white/10 bg-white/5 backdrop-blur-md transition-all duration-300 hover:border-white/20 hover:bg-white/10">
                   <div className={cn(
@@ -275,7 +288,7 @@ const ModernEnhanceTab = memo(({
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </div>
             ))}
           </div>
         </div>
@@ -296,7 +309,7 @@ const ModernEnhanceTab = memo(({
             </div>
             
             <div className="flex gap-2">
-              <Button
+              <CustomButton
                 variant="ghost"
                 size="sm"
                 onClick={clearStyles}
@@ -304,8 +317,8 @@ const ModernEnhanceTab = memo(({
                 disabled={selectedStyles.length === 0}
               >
                 Clear All
-              </Button>
-              <Button
+              </CustomButton>
+              <CustomButton
                 variant="secondary"
                 size="sm"
                 onClick={enhanceWithStyles}
@@ -314,7 +327,7 @@ const ModernEnhanceTab = memo(({
                 className="bg-gradient-to-r from-purple-600/20 to-pink-600/20 hover:from-purple-600/30 hover:to-pink-600/30"
               >
                 Apply ({selectedStyles.length})
-              </Button>
+              </CustomButton>
             </div>
           </div>
 
@@ -328,7 +341,7 @@ const ModernEnhanceTab = memo(({
                 
                 <div className="flex flex-wrap gap-2">
                   {category.styles.map((style) => (
-                    <motion.button
+                    <button
                       key={style}
                       onClick={() => toggleStyle(style)}
                       className={cn(
@@ -337,12 +350,9 @@ const ModernEnhanceTab = memo(({
                           ? "bg-purple-500/20 border-purple-500/50 text-purple-300"
                           : "bg-slate-200/50 dark:bg-white/5 border-slate-300/50 dark:border-white/10 text-slate-700 dark:text-white/70 hover:bg-slate-300/50 dark:hover:bg-white/10 hover:border-slate-400/50 dark:hover:border-white/20 hover:text-slate-800 dark:hover:text-white"
                       )}
-                      whileHover={{ scale: 1.05 }}
-                      whileTap={{ scale: 0.95 }}
-                      transition={{ type: "spring", stiffness: 400, damping: 25 }}
                     >
                       {selectedStyles.includes(style) ? "✓ " : "+ "}{style}
-                    </motion.button>
+                    </button>
                   ))}
                 </div>
               </div>
@@ -350,63 +360,57 @@ const ModernEnhanceTab = memo(({
           </div>
 
           {/* Selected Styles Preview */}
-          <AnimatePresence>
-            {selectedStyles.length > 0 && (
-              <motion.div
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: "auto" }}
-                exit={{ opacity: 0, height: 0 }}
-                transition={{ duration: 0.3 }}
-                className="space-y-3 pt-4 border-t border-white/10"
-              >
-                <h4 className="font-semibold text-slate-800 dark:text-white">Selected Styles ({selectedStyles.length}):</h4>
-                <div className="flex flex-wrap gap-2">
-                  {selectedStyles.map((style) => (
-                    <motion.span
-                      key={style}
-                      initial={{ opacity: 0, scale: 0.8 }}
-                      animate={{ opacity: 1, scale: 1 }}
-                      exit={{ opacity: 0, scale: 0.8 }}
-                      className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg text-sm"
+          {selectedStyles.length > 0 && (
+            <div className="space-y-3 pt-4 border-t border-white/10">
+              <h4 className="font-semibold text-slate-800 dark:text-white">Selected Styles ({selectedStyles.length}):</h4>
+              <div className="flex flex-wrap gap-2">
+                {selectedStyles.map((style) => (
+                  <span
+                    key={style}
+                    className="inline-flex items-center gap-2 px-3 py-1 bg-purple-500/20 border border-purple-500/30 text-purple-300 rounded-lg text-sm"
+                  >
+                    {style}
+                    <button
+                      onClick={() => toggleStyle(style)}
+                      className="hover:text-red-400 transition-colors"
                     >
-                      {style}
-                      <button
-                        onClick={() => toggleStyle(style)}
-                        className="hover:text-red-400 transition-colors"
-                      >
-                        ×
-                      </button>
-                    </motion.span>
-                  ))}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+                      ×
+                    </button>
+                  </span>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       </GlassCard>
 
-      {/* Styles Applied Popup */}
+      {/* Example Prompts Grid - Full Width */}
+      <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
+      
+      {/* Social Links Section */}
+      <SocialLinksDemo />
+      </div>
+
+      {/* Styles Applied Popup - Outside main container */}
       <AnimatePresence>
         {showStylesAppliedPopup && (
           <motion.div
-            initial={{ opacity: 0, scale: 0.8, y: 50 }}
-            animate={{ opacity: 1, scale: 1, y: 0 }}
-            exit={{ opacity: 0, scale: 0.8, y: 50 }}
-            className="fixed bottom-8 right-8 z-50"
+            initial={{ opacity: 0, scale: 0.5 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.3 }}
+            className="fixed top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 z-[9999]"
           >
-            <div className="flex items-center gap-3 px-6 py-4 bg-green-500/20 border border-green-500/30 backdrop-blur-md rounded-xl text-green-300">
-              <div className="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center">
-                <span className="text-slate-800 dark:text-white text-sm">✓</span>
+            <div className="flex flex-col items-center justify-center gap-4 px-8 py-6 bg-green-600 border-2 border-green-500 rounded-2xl text-white shadow-2xl min-w-[320px] text-center">
+              <div className="w-12 h-12 rounded-full bg-white flex items-center justify-center">
+                <span className="text-green-600 text-2xl font-bold">✓</span>
               </div>
-              <span className="font-medium">Styles Applied Successfully!</span>
+              <span className="font-bold text-xl">Styles Applied Successfully!</span>
             </div>
           </motion.div>
         )}
       </AnimatePresence>
-
-      {/* Example Prompts Grid - Full Width */}
-      <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
-    </div>
+    </>
   );
 });
 
