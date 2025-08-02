@@ -4,16 +4,16 @@ import { motion } from 'framer-motion';
 
 const AnimatedBackground = () => {
   return (
-    <div className="fixed inset-0 -z-10 overflow-hidden">
+    <div className="fixed inset-0 -z-10 overflow-hidden w-full h-full">
       {/* Gradient Background */}
-      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950" />
+      <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-purple-900/20 to-slate-900 dark:from-slate-950 dark:via-purple-950/30 dark:to-slate-950 w-full h-full" />
       
-      {/* Animated Gradient Orbs */}
+      {/* Animated Gradient Orbs - Mobile Optimized */}
       <motion.div
-        className="absolute top-0 -left-4 w-72 h-72 bg-purple-400/30 rounded-full mix-blend-multiply filter blur-xl"
+        className="absolute top-0 left-0 w-48 sm:w-72 h-48 sm:h-72 bg-purple-400/20 sm:bg-purple-400/30 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/4 -translate-y-1/4"
         animate={{
-          x: [0, 100, 0],
-          y: [0, -50, 0],
+          x: [0, 50, 0],
+          y: [0, -25, 0],
         }}
         transition={{
           duration: 20,
@@ -23,10 +23,10 @@ const AnimatedBackground = () => {
       />
       
       <motion.div
-        className="absolute top-0 -right-4 w-72 h-72 bg-cyan-400/30 rounded-full mix-blend-multiply filter blur-xl"
+        className="absolute top-0 right-0 w-48 sm:w-72 h-48 sm:h-72 bg-cyan-400/20 sm:bg-cyan-400/30 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/4 -translate-y-1/4"
         animate={{
-          x: [0, -100, 0],
-          y: [0, 50, 0],
+          x: [0, -50, 0],
+          y: [0, 25, 0],
         }}
         transition={{
           duration: 25,

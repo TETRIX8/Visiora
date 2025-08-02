@@ -12,8 +12,8 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
   ];
 
   return (
-    <div className="w-full max-w-md mx-auto mb-8">
-      <div className="relative p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md">
+    <div className="w-full max-w-sm sm:max-w-md mx-auto mb-8 px-4">
+      <div className="relative p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md w-full">
         {/* Active tab background */}
         <motion.div
           className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-purple-600/80 to-pink-600/80 shadow-lg"
@@ -26,7 +26,7 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
 
-        <div className="relative z-10 grid grid-cols-3 gap-0">
+        <div className="relative z-10 grid grid-cols-3 gap-0 w-full">
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;
@@ -36,12 +36,14 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
                 key={tab.id}
                 onClick={() => onTabChange(tab.id)}
                 className={cn(
-                  "relative flex flex-col items-center gap-1 px-4 py-3 text-sm font-medium transition-all duration-200",
+                  "relative flex flex-col items-center gap-1 px-2 sm:px-4 py-3 text-xs sm:text-sm font-medium transition-all duration-200 w-full",
                   "hover:text-slate-800 dark:hover:text-white focus:outline-none focus:text-slate-800 dark:focus:text-white",
+                  "touch-manipulation", // Better touch handling
                   isActive ? "text-slate-900 dark:text-white" : "text-slate-600 dark:text-white/60"
                 )}
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
+                transition={{ duration: 0.1 }}
               >
                 <div className="relative">
                   <Icon className="w-5 h-5" />

@@ -339,7 +339,7 @@ function App() {
   ]);
 
   return (
-    <div className="min-h-screen bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-display transition-colors duration-300">
+    <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-display transition-colors duration-300">
       {/* Animated Background */}
       <AnimatedBackground />
 
@@ -350,8 +350,8 @@ function App() {
       <Hero />
 
       {/* Main Content */}
-      <main className="relative z-10 pb-20 -translate-y-[30vh]">
-        <div className="container mx-auto px-6">
+      <main className="relative z-10 pb-20 -translate-y-[30vh] w-full">
+        <div className="container mx-auto px-6 w-full">
           {/* Tab Navigation */}
           <div className="flex justify-center mb-12">
             <ModernTabNavigation

@@ -107,48 +107,49 @@ const Hero = () => {
           </motion.div>
         </motion.div>
 
-        {/* Floating Words Animation - Optimized for Mobile */}
-        <div className="fixed inset-0 pointer-events-none z-5">
+        {/* Floating Words Animation - Mobile Optimized */}
+        <div className="fixed inset-0 pointer-events-none z-5 overflow-hidden">
           {floatingWords.map((word, index) => {
-            // Create varied positioning patterns
+            // Create more controlled positioning patterns for mobile
             const patterns = [
-              // Left side scattered
-              { left: Math.random() * 25, top: Math.random() * 100 },
-              // Right side scattered  
-              { left: 75 + Math.random() * 25, top: Math.random() * 100 },
-              // Top scattered
-              { left: Math.random() * 100, top: Math.random() * 25 },
-              // Bottom scattered
-              { left: Math.random() * 100, top: 75 + Math.random() * 25 },
-              // Center scattered
-              { left: 25 + Math.random() * 50, top: 25 + Math.random() * 50 },
+              // Left side - safe zone
+              { left: 5 + Math.random() * 15, top: 10 + Math.random() * 80 },
+              // Right side - safe zone  
+              { left: 80 + Math.random() * 15, top: 10 + Math.random() * 80 },
+              // Top - safe zone
+              { left: 20 + Math.random() * 60, top: 5 + Math.random() * 15 },
+              // Bottom - safe zone
+              { left: 20 + Math.random() * 60, top: 80 + Math.random() * 15 },
+              // Center - safe zone
+              { left: 30 + Math.random() * 40, top: 30 + Math.random() * 40 },
             ];
             
             const pattern = patterns[index % patterns.length];
-            const randomOffset = {
-              left: pattern.left + (Math.random() - 0.5) * 20,
-              top: pattern.top + (Math.random() - 0.5) * 20
+            const safeOffset = {
+              left: Math.max(2, Math.min(85, pattern.left + (Math.random() - 0.5) * 10)),
+              top: Math.max(5, Math.min(90, pattern.top + (Math.random() - 0.5) * 10))
             };
             
             return (
               <motion.div
                 key={word}
-                className="absolute text-slate-300/15 dark:text-white/10 font-bold text-4xl md:text-6xl lg:text-8xl select-none will-change-transform"
+                className="absolute text-slate-300/10 dark:text-white/8 font-bold text-xl md:text-3xl lg:text-5xl select-none will-change-transform"
                 style={{
-                  left: `${Math.max(0, Math.min(95, randomOffset.left))}%`,
-                  top: `${Math.max(-5, Math.min(105, randomOffset.top))}%`,
+                  left: `${safeOffset.left}%`,
+                  top: `${safeOffset.top}%`,
+                  transform: 'translate(-50%, -50%)', // Center the text on its position
                 }}
                 animate={{
-                  y: [-20, 20, -20],
-                  rotate: [-8, 8, -8],
-                  scale: [0.9, 1.1, 0.9],
-                  x: [-15, 15, -15],
+                  y: [-10, 10, -10],
+                  rotate: [-4, 4, -4],
+                  scale: [0.95, 1.05, 0.95],
+                  x: [-8, 8, -8],
                 }}
                 transition={{
-                  duration: 20 + index * 2,
+                  duration: 15 + index * 1.5,
                   repeat: Infinity,
                   ease: "easeInOut",
-                  delay: index * 1,
+                  delay: index * 0.8,
                 }}
               >
                 {word}
