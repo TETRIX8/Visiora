@@ -1,0 +1,44 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Common functions for validation
+    function isSignedIn() {
+      return request.auth != null;
+    }
+    
+    function isOwner(userId) {
+      return request.auth.uid == userId;
+    }
+    
+    // For debugging during development - REMOVE IN PRODUCTION
+    match /{document=**} {
+      allow read, write: if isSignedIn();
+    }
+    
+    // Users collection with flattened structure
+    match /users/{userId} {
+      // Allow users to read and write their own documents
+      allow read, write: if isSignedIn() && isOwner(userId);
+      
+      // Allow direct access to images collection
+      match /images/{imageId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+      }
+      
+      // Allow access to metadata
+      match /meta/{metaId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+      }
+      
+      // Allow other nested collections
+      match /{collection}/{docId} {
+        allow read, write: if isSignedIn() && isOwner(userId);
+      }
+    }
+    
+    // Test collection for validation
+    match /_visiora_test/{docId} {
+      allow read, write: if isSignedIn();
+    }
+  }
+}

@@ -1,18 +1,23 @@
 // src/components/layout/AnimatedBackground.jsx
-import React, { useMemo, memo } from 'react';
+import React, { useRef, memo } from 'react';
 import { motion } from 'framer-motion';
 
 const AnimatedBackground = memo(() => {
-  // Generate particles once and memoize them to prevent re-renders
-  const particles = useMemo(() => {
-    return [...Array(20)].map((_, i) => ({
-      id: i,
-      left: Math.random() * 100,
-      top: Math.random() * 100,
-      duration: 10 + Math.random() * 10,
-      delay: Math.random() * 10,
-    }));
-  }, []);
+  console.log('AnimatedBackground rendered'); // DEBUG: See if this logs on every button click
+  // Persist particles globally so they survive remounts
+  const getPersistentParticles = () => {
+    if (!window.__visiora_particles) {
+      window.__visiora_particles = [...Array(20)].map((_, i) => ({
+        id: i,
+        left: Math.random() * 100,
+        top: Math.random() * 100,
+        duration: 10 + Math.random() * 10,
+        delay: Math.random() * 10,
+      }));
+    }
+    return window.__visiora_particles;
+  };
+  const particles = getPersistentParticles();
 
   return (
     <div className="fixed inset-0 -z-10 overflow-hidden w-full h-full">
@@ -21,6 +26,7 @@ const AnimatedBackground = memo(() => {
       
       {/* Animated Gradient Orbs - Mobile Optimized */}
       <motion.div
+        initial={false}
         className="absolute top-0 left-0 w-48 sm:w-72 h-48 sm:h-72 bg-purple-400/20 sm:bg-purple-400/30 rounded-full mix-blend-multiply filter blur-xl transform -translate-x-1/4 -translate-y-1/4"
         animate={{
           x: [0, 50, 0],
@@ -34,6 +40,7 @@ const AnimatedBackground = memo(() => {
       />
       
       <motion.div
+        initial={false}
         className="absolute top-0 right-0 w-48 sm:w-72 h-48 sm:h-72 bg-cyan-400/20 sm:bg-cyan-400/30 rounded-full mix-blend-multiply filter blur-xl transform translate-x-1/4 -translate-y-1/4"
         animate={{
           x: [0, -50, 0],
@@ -47,6 +54,7 @@ const AnimatedBackground = memo(() => {
       />
       
       <motion.div
+        initial={false}
         className="absolute -bottom-8 left-20 w-72 h-72 bg-pink-400/30 rounded-full mix-blend-multiply filter blur-xl"
         animate={{
           x: [0, -50, 0],
@@ -64,6 +72,7 @@ const AnimatedBackground = memo(() => {
         {particles.map((particle) => (
           <motion.div
             key={particle.id}
+            initial={false}
             className="absolute w-2 h-2 bg-white/10 rounded-full"
             style={{
               left: `${particle.left}%`,

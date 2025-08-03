@@ -1,0 +1,88 @@
+/* 
+ * Dedicated masonry layout CSS optimized for variable height images
+ * This is designed to show images in their original proportions
+ * with consistent column widths but variable heights
+ */
+
+/* Core masonry grid styles */
+.masonry-grid {
+  display: flex;
+  width: auto;
+  margin-left: -16px; /* Gutter size */
+}
+
+.masonry-grid-column {
+  padding-left: 16px; /* Gutter size */
+  background-clip: padding-box;
+  width: 100%; /* Ensures columns take equal space */
+}
+
+/* Individual masonry items */
+.masonry-item {
+  margin-bottom: 16px; /* Bottom margin between items */
+  break-inside: avoid; /* Prevents item from breaking across columns */
+}
+
+/* Container for the image to maintain aspect ratio */
+.masonry-image-container {
+  position: relative;
+  overflow: hidden;
+  border-radius: 8px;
+  background: rgba(0, 0, 0, 0.05);
+}
+
+/* The actual image styling */
+.masonry-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  transition: transform 0.3s ease;
+}
+
+/* Hover effects */
+.masonry-image-container:hover .masonry-image {
+  transform: scale(1.03);
+}
+
+/* Overlay on hover */
+.masonry-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  display: flex;
+  align-items: flex-end;
+  padding: 16px;
+}
+
+.masonry-image-container:hover .masonry-overlay {
+  opacity: 1;
+}
+
+/* Loading placeholder */
+.masonry-placeholder {
+  position: absolute;
+  inset: 0;
+  background-color: rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Safari-specific fixes */
+@supports (-webkit-appearance:none) {
+  .masonry-grid {
+    width: calc(100% + 16px);
+  }
+}
+
+/* Animation classes */
+.masonry-fade-in {
+  animation: fadeIn 0.5s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

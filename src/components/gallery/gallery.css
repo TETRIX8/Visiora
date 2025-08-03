@@ -1,0 +1,43 @@
+/* Gallery styles */
+.gallery-masonry {
+  display: flex;
+  margin-left: -16px; /* Adjust the gutter size */
+  width: auto;
+}
+
+.gallery-masonry > div {
+  padding-left: 16px; /* Adjust the gutter size */
+  background-clip: padding-box;
+  width: 100%; /* Ensure columns take equal width */
+}
+
+/* Fix for Safari */
+@supports (-webkit-appearance:none) {
+  .gallery-masonry {
+    width: calc(100% + 16px);
+  }
+}
+
+/* Add this to index.css or a separate CSS file */
+.blur-up {
+  filter: blur(5px);
+  transition: filter 400ms;
+}
+
+.blur-up.lazyloaded {
+  filter: blur(0);
+}
+
+/* Fade effect */
+.fade-in-image {
+  animation: fadeIn 0.5s;
+  -webkit-animation: fadeIn 0.5s;
+  -moz-animation: fadeIn 0.5s;
+  -o-animation: fadeIn 0.5s;
+  -ms-animation: fadeIn 0.5s;
+}
+
+@keyframes fadeIn {
+  0% { opacity: 0; }
+  100% { opacity: 1; }
+}

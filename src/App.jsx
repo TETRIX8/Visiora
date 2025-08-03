@@ -1,12 +1,15 @@
 // src/App.jsx
 import React, { useState, useEffect, Suspense, lazy, useCallback, useMemo } from "react";
-import { AnimatePresence } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { generateRandomPrompt } from "./api/pollinationService";
-import {useTheme} from "./hooks/useTheme";
+import { saveGeneratedImage } from "./api/imageServiceV2";
+import { useTheme } from "./hooks/useTheme";
 import useLocalStorage from "./hooks/useLocalStorage";
+import { AuthProvider, useAuthContext } from "./contexts/AuthContextV2";
+
 
 // Layout Components
-import AnimatedBackground from "./components/layout/AnimatedBackground";
+import MemoizedBackground from "./components/layout/MemoizedBackground";
 import Header from "./components/layout/Header";
 import Hero from "./components/layout/Hero";
 import Footer from "./components/layout/Footer";
@@ -17,7 +20,11 @@ import ModernGenerateTab from "./components/tabs/ModernGenerateTab";
 
 // Lazy load less critical components for better performance
 const ModernEnhanceTab = lazy(() => import("./components/tabs/ModernEnhanceTab"));
-const ModernHistoryTab = lazy(() => import("./components/tabs/ModernHistoryTab"));
+// Importing the masonry layout for history tab
+const ModernMasonryHistoryTab = lazy(() => import("./components/tabs/ModernMasonryHistoryTab"));
+const GalleryPage = lazy(() => import("./pages/GalleryPage"));
+const AuthModal = lazy(() => import("./components/auth/AuthModal"));
+const SaveProjectModal = lazy(() => import("./components/projects/SaveProjectModal"));
 
 // Loading component with better styling
 const TabLoader = React.memo(() => (
@@ -31,7 +38,9 @@ const TabLoader = React.memo(() => (
 
 TabLoader.displayName = 'TabLoader';
 
-function App() {
+
+
+function App({ authContext, showLoginPrompt, setShowLoginPrompt }) {
   // State management with better initial values
   const [inputPrompt, setInputPrompt] = useState("");
   const [imageUrl, setImageUrl] = useState(null);
@@ -96,6 +105,31 @@ function App() {
       alert("Please enter a prompt!");
       return;
     }
+    
+    // Enhanced debugging for credits
+    console.log('Credits before spending:', authContext.credits);
+    console.log('User logged in:', authContext.user ? 'Yes' : 'No');
+    if (authContext.user) {
+      console.log('User ID:', authContext.user.uid);
+    } else {
+      console.log('Anonymous credits in localStorage:', localStorage.getItem('visiora_anonymous_credits'));
+    }
+    
+    // Check if user has credits
+    const hasCredits = await authContext.spendCredit();
+    
+
+    
+    if (!hasCredits) {
+      // Different messages for logged in vs anonymous users
+      if (authContext.user) {
+        setError("You don't have enough credits. Login tomorrow to receive 5 free daily credits.");
+      } else {
+        setError("You don't have enough credits. Sign in to get 10 bonus credits!");
+        setShowLoginPrompt(true);
+      }
+      return;
+    }
 
     setIsLoading(true);
     setError(null);
@@ -142,6 +176,27 @@ function App() {
         dimensions: `${finalWidth}x${finalHeight}`,
       };
       setHistory((prev) => [historyItem, ...prev.slice(0, 9)]);
+      
+      // Save to Firestore for logged-in users
+      if (authContext.user) {
+        try {
+          const imageData = {
+            prompt: inputPrompt.trim(),
+            imageURL: apiUrl,
+            modelUsed: selectedModel,
+            width: finalWidth,
+            height: finalHeight,
+            seed: finalSeed,
+            nologo: removeWatermark
+          };
+          
+          await saveGeneratedImage(authContext.user.uid, imageData);
+          console.log('Image saved to user library in Firestore');
+        } catch (error) {
+          console.error('Error saving image to Firestore:', error);
+          // Don't show error to user, silently fail as this is non-critical
+        }
+      }
 
       clearInterval(progressInterval);
 
@@ -273,26 +328,27 @@ function App() {
     switch (activeTab) {
       case "generate":
         return (
-          <ModernGenerateTab
-            inputPrompt={inputPrompt}
-            setInputPrompt={setInputPrompt}
-            imageUrl={imageUrl}
-            isLoading={isLoading}
-            imageLoaded={imageLoaded}
-            error={error}
-            progress={progress}
-            selectedModel={selectedModel}
-            setSelectedModel={setSelectedModel}
-            selectedShape={selectedShape}
-            setSelectedShape={setSelectedShape}
-            seed={seed}
-            setSeed={setSeed}
-            removeWatermark={removeWatermark}
-            setRemoveWatermark={setRemoveWatermark}
-            width={width}
-            height={height}
-            setWidth={setWidth}
-            setHeight={setHeight}
+          <div>
+            <ModernGenerateTab
+              inputPrompt={inputPrompt}
+              setInputPrompt={setInputPrompt}
+              imageUrl={imageUrl}
+              isLoading={isLoading}
+              imageLoaded={imageLoaded}
+              error={error}
+              progress={progress}
+              selectedModel={selectedModel}
+              setSelectedModel={setSelectedModel}
+              selectedShape={selectedShape}
+              setSelectedShape={setSelectedShape}
+              seed={seed}
+              setSeed={setSeed}
+              removeWatermark={removeWatermark}
+              setRemoveWatermark={setRemoveWatermark}
+              width={width}
+              height={height}
+              setWidth={setWidth}
+              setHeight={setHeight}
             shapes={shapes}
             models={models}
             handleGenerateClick={handleGenerateClick}
@@ -302,6 +358,7 @@ function App() {
             handleGenerateRandomPrompt={handleGenerateRandomPrompt}
             isGeneratingRandom={isGeneratingRandom}
           />
+          </div>
         );
       case "enhance":
         return (
@@ -317,13 +374,20 @@ function App() {
       case "history":
         return (
           <Suspense fallback={<TabLoader />}>
-            <ModernHistoryTab
+            <ModernMasonryHistoryTab
               history={history}
               setInputPrompt={setInputPrompt}
               setActiveTab={setActiveTab}
               handleDeleteHistoryItem={handleDeleteHistoryItem}
               handleClearAllHistory={handleClearAllHistory}
             />
+          </Suspense>
+        );
+
+      case "gallery":
+        return (
+          <Suspense fallback={<TabLoader />}>
+            <GalleryPage />
           </Suspense>
         );
       default:
@@ -335,18 +399,20 @@ function App() {
     shapes, models, history, isEnhancing, isGeneratingRandom,
     handleGenerateClick, handleImageLoadComplete, handleImageLoadError,
     handleConfusedClick, handleGenerateRandomPrompt, handleEnhancePrompt,
-    handleDeleteHistoryItem, handleClearAllHistory
+    handleDeleteHistoryItem, handleClearAllHistory,
+    setSelectedModel, setSelectedShape, setSeed, setRemoveWatermark, setWidth, setHeight
   ]);
 
   return (
     <div className="min-h-screen w-full overflow-x-hidden bg-white dark:bg-slate-950 text-slate-900 dark:text-white font-sans transition-colors duration-300">
-      {/* Animated Background */}
-      <AnimatedBackground />
+      {/* MemoizedBackground removed to prevent duplicate rendering and remounts */}
 
-      {/* Header */}
-      <Header isDarkMode={isDarkMode} onThemeChange={toggleTheme} />
-
-      {/* Hero Section */}
+        {/* Header */}
+        <Header 
+          isDarkMode={isDarkMode} 
+          onThemeChange={toggleTheme}
+          onLoginClick={() => setShowLoginPrompt(true)}
+        />      {/* Hero Section */}
       <Hero />
 
       {/* Main Content */}
@@ -358,22 +424,63 @@ function App() {
               activeTab={activeTab}
               onTabChange={setActiveTab}
               historyCount={history.length}
+              showGalleryTab={!!authContext.user}
             />
           </div>
 
           {/* Tab Content */}
           <AnimatePresence mode="wait">
-            <div key={activeTab} className="w-full">
+            <motion.div
+              key={activeTab}
+              className="w-full"
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -20 }}
+              transition={{ duration: 0.3 }}
+            >
               {renderTabContent}
-            </div>
+            </motion.div>
           </AnimatePresence>
         </div>
       </main>
 
       {/* Footer */}
       <Footer />
+      
+      {/* Auth Modal */}
+      <Suspense fallback={null}>
+        {showLoginPrompt && (
+          <AuthModal
+            isOpen={showLoginPrompt}
+            onClose={() => setShowLoginPrompt(false)}
+            initialMode="login"
+          />
+        )}
+      </Suspense>
     </div>
   );
 }
 
-export default React.memo(App);
+// Wrapper component that uses AuthContext
+function AppWithAuth() {
+  // Access auth context
+  const authContext = useAuthContext();
+  const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  
+  return (
+    <App 
+      authContext={authContext}
+      showLoginPrompt={showLoginPrompt}
+      setShowLoginPrompt={setShowLoginPrompt}
+    />
+  );
+}
+
+// Main export with auth wrapper
+export default function AppContainer() {
+  return (
+    <AuthProvider>
+      <AppWithAuth />
+    </AuthProvider>
+  );
+}

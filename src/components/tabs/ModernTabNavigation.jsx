@@ -1,19 +1,24 @@
 // src/components/tabs/ModernTabNavigation.jsx
 import React from 'react';
 import { motion } from 'framer-motion';
-import { Wand2, Sparkles, History } from 'lucide-react';
+import { Wand2, Sparkles, History, Grid, LayoutGrid } from 'lucide-react';
 import { cn } from '../../utils/cn';
 
-const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
-  const tabs = [
+const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0, showGalleryTab = false }) => {
+  let tabs = [
     { id: 'generate', label: 'Generate', icon: Wand2, description: 'Create new images' },
     { id: 'enhance', label: 'Enhance', icon: Sparkles, description: 'Improve prompts' },
     { id: 'history', label: 'History', icon: History, description: 'View past creations', badge: historyCount }
   ];
+  
+  // Add gallery tab if user is logged in
+  if (showGalleryTab) {
+    tabs.splice(2, 0, { id: 'gallery', label: 'Gallery', icon: LayoutGrid, description: 'Your AI image gallery' });
+  }
 
   return (
     <div className="w-full max-w-sm sm:max-w-md mx-auto mb-8 px-4">
-      <div className="relative p-1 rounded-2xl bg-white/5 border border-white/10 backdrop-blur-md w-full">
+      <div className="relative p-1 rounded-2xl bg-white/0 border border-white/10 backdrop-blur-md w-full">
         {/* Active tab background */}
         <motion.div
           className="absolute top-1 bottom-1 rounded-xl bg-gradient-to-r from-purple-600/80 to-pink-600/80 shadow-lg"
@@ -26,7 +31,10 @@ const ModernTabNavigation = ({ activeTab, onTabChange, historyCount = 0 }) => {
           transition={{ type: "spring", stiffness: 300, damping: 30 }}
         />
 
-        <div className="relative z-10 grid grid-cols-3 gap-0 w-full">
+        <div className={cn(
+          "relative z-10 grid gap-0 w-full",
+          showGalleryTab ? "grid-cols-4" : "grid-cols-3"
+        )}>
           {tabs.map((tab) => {
             const isActive = activeTab === tab.id;
             const Icon = tab.icon;

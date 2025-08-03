@@ -4,7 +4,7 @@ import { cn } from "../../lib/utils"
 
 const TechStackScroll = ({ className = "" }) => {
   // Tech stack technologies
-  const technologies = ["React 18", "Tailwind CSS", "Pollinations AI", "Framer Motion", "Vite 7"]
+  const technologies = ["React 18", "Tailwind CSS", "Pollinations AI", "Framer Motion", "Vite 7", "Firebase"]
 
   return (
     <div className={cn("w-full max-w-4xl mx-auto py-4", className)}>

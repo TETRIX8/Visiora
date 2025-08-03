@@ -1,10 +1,18 @@
 // src/components/layout/Header.jsx
-import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
 import { Palette } from 'lucide-react';
 import ModernThemeToggle from '../ui/ModernThemeToggle';
+import UserProfileButtonFixed from '../auth/UserProfileButtonFixed';
+import AuthModalV2 from '../auth/AuthModalV2';
+import Button from '../ui/Button';
+import { useAuthContext } from '../../contexts/AuthContextV2';
 
 const Header = ({ isDarkMode, onThemeChange }) => {
+  const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authModalMode, setAuthModalMode] = useState('login');
+  const { user } = useAuthContext();
+  
   return (
     <motion.header
       className="fixed top-0 left-0 right-0 z-50 border-b border-slate-200/20 dark:border-white/10 bg-white/80 dark:bg-white/5 backdrop-blur-md w-full"
@@ -38,8 +46,35 @@ const Header = ({ isDarkMode, onThemeChange }) => {
             </div>
           </motion.div>
 
-          {/* Theme Toggle - Fixed positioning */}
-          <div className="flex-shrink-0">
+          {/* Right side - Theme Toggle and Auth */}
+          <div className="flex items-center gap-3 flex-shrink-0">
+            <UserProfileButtonFixed onLoginClick={() => {
+              setIsAuthModalOpen(true);
+              // Default to login tab
+              setAuthModalMode('login');
+            }} />
+            
+            {/* Only show Sign Up button when user is not logged in */}
+            {!user && (
+              <Button
+                onClick={() => {
+                  setIsAuthModalOpen(true);
+                  // Set to signup tab
+                  setAuthModalMode('register');
+                }}
+                size="sm"
+                variant="outline"
+                className="hidden sm:flex items-center justify-center border-pink-400/50 min-w-[80px]"
+              >
+                <div className="flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M8 9a3 3 0 100-6 3 3 0 000 6zM8 11a6 6 0 016 6H2a6 6 0 016-6zM16 8a1 1 0 10-2 0v1h-1a1 1 0 100 2h1v1a1 1 0 102 0v-1h1a1 1 0 100-2h-1V8z" />
+                  </svg>
+                  <span>Sign Up</span>
+                </div>
+              </Button>
+            )}
+            
             <ModernThemeToggle 
               isDarkMode={isDarkMode} 
               onToggle={onThemeChange}
@@ -48,6 +83,13 @@ const Header = ({ isDarkMode, onThemeChange }) => {
           </div>
         </div>
       </div>
+      
+      {/* Auth Modal */}
+      <AuthModalV2 
+        isOpen={isAuthModalOpen} 
+        onClose={() => setIsAuthModalOpen(false)} 
+        initialMode={authModalMode}
+      />
     </motion.header>
   );
 };

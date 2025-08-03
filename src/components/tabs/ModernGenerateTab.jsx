@@ -1,5 +1,5 @@
 // src/components/tabs/ModernGenerateTab.jsx
-import React, { memo } from 'react';
+import React, { memo, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Sparkles, 
@@ -9,13 +9,17 @@ import {
   Download, 
   Settings,
   Image as ImageIcon,
-  Shuffle
+  Shuffle,
+  Save,
+  FolderPlus
 } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
 import CustomButton from '../ui/CustomButton';
 import CustomInput from '../ui/CustomInput';
-import { SocialLinksDemo } from '../ui/SocialLinksDemo';
+
 import ExamplePromptsGrid from '../examples/ExamplePromptsGrid';
+import SaveProjectModal from '../projects/SaveProjectModal';
+import { useAuthContext } from '../../contexts/AuthContextV2';
 import { cn } from '../../utils/cn';
 
 const ModernGenerateTab = memo(({
@@ -47,6 +51,9 @@ const ModernGenerateTab = memo(({
   handleGenerateRandomPrompt,
   isGeneratingRandom,
 }) => {
+  const [isSaveModalOpen, setIsSaveModalOpen] = useState(false);
+  const { user } = useAuthContext();
+  
   const categories = [
     { id: 'portrait', label: 'Portrait', icon: '👤' },
     { id: 'landscape', label: 'Landscape', icon: '🏔️' },
@@ -282,14 +289,26 @@ const ModernGenerateTab = memo(({
                 <h3 className="text-lg font-semibold text-slate-800 dark:text-white">Generated Image</h3>
               </div>
               {imageUrl && imageLoaded && (
-                <CustomButton
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDownload}
-                  icon={Download}
-                >
-                  Download
-                </CustomButton>
+                <div className="flex space-x-2">
+                  <CustomButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => setIsSaveModalOpen(true)}
+                    icon={FolderPlus}
+                    disabled={!user}
+                    title={!user ? "Sign in to save to library" : "Save to Library"}
+                  >
+                    Save
+                  </CustomButton>
+                  <CustomButton
+                    variant="ghost"
+                    size="sm"
+                    onClick={handleDownload}
+                    icon={Download}
+                  >
+                    Download
+                  </CustomButton>
+                </div>
               )}
             </div>
 
@@ -389,8 +408,25 @@ const ModernGenerateTab = memo(({
     {/* Example Prompts Grid - Full Width */}
     <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
     
-    {/* Social Links Section */}
-    <SocialLinksDemo />
+
+    
+    {/* Save Project Modal */}
+    {isSaveModalOpen && (
+      <SaveProjectModal
+        isOpen={isSaveModalOpen}
+        onClose={() => setIsSaveModalOpen(false)}
+        projectData={{
+          prompt: inputPrompt,
+          model: selectedModel,
+          shape: selectedShape,
+          seed: seed,
+          removeWatermark,
+          width,
+          height,
+          imageUrl
+        }}
+      />
+    )}
   </div>
   );
 });
