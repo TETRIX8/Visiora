@@ -1,9 +1,113 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useAuthContext } from '../../contexts/AuthContextV2';
 import { motion } from 'framer-motion';
 import styles from './SliderAuth.module.css';
-
-export default function RegisterFormV2({ onSignInClick, onSuccess }) {
+import { sendEmailVerification } from 'firebase/auth';
+// Email verification using Firebase's built-in system - no external dependencies needed!
+// Email Verification Modal Component
+const EmailVerificationModal = ({ email, onClose, onGoToLogin }) => {
+  const [isResending, setIsResending] = useState(false);
+  const handleResendEmail = async () => {
+    setIsResending(true);
+    try {
+      alert('To resend the verification email, please try signing up again with the same email address. The system will send a new verification link.');
+    } catch (error) {
+      console.error('Error with resend:', error);
+    }
+    setIsResending(false);
+  };
+  return (
+    <motion.div
+      initial={{ opacity: 0, scale: 0.9 }}
+      animate={{ opacity: 1, scale: 1 }}
+      className="bg-white dark:bg-slate-800 rounded-2xl p-8 w-full max-w-md shadow-2xl border border-purple-200 dark:border-purple-800"
+    >
+      <div className="text-center mb-8">
+        {/* Success Icon */}
+        <div className="relative mb-6">
+          <div className="w-20 h-20 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full flex items-center justify-center mx-auto shadow-lg">
+            <svg className="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+            </svg>
+          </div>
+          <div className="absolute -top-1 -right-1 w-6 h-6 bg-purple-500 rounded-full flex items-center justify-center">
+            <svg className="w-3 h-3 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path d="M2.003 5.884L10 9.882l7.997-3.998A2 2 0 0016 4H4a2 2 0 00-1.997 1.884z" />
+              <path d="M18 8.118l-8 4-8-4V14a2 2 0 002 2h12a2 2 0 002-2V8.118z" />
+            </svg>
+          </div>
+        </div>
+        <h2 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-3">
+          Thanks for Signing Up! 🎉
+        </h2>
+        <p className="text-slate-600 dark:text-slate-300 text-lg mb-2">
+          Please verify your email to continue
+        </p>
+        <div className="bg-purple-50 dark:bg-purple-900/20 rounded-lg p-4 mb-6">
+          <p className="text-sm text-purple-700 dark:text-purple-300 mb-2">
+            📧 Verification email sent to:
+          </p>
+          <p className="font-semibold text-purple-800 dark:text-purple-200 break-all">
+            {email}
+          </p>
+        </div>
+      </div>
+      {/* Instructions */}
+      <div className="bg-gradient-to-r from-blue-50 to-indigo-50 dark:from-blue-900/20 dark:to-indigo-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-6 mb-6">
+        <div className="flex items-start space-x-3 mb-4">
+          <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center flex-shrink-0">
+            <span className="text-white font-bold text-sm">!</span>
+          </div>
+          <div>
+            <h3 className="font-semibold text-blue-800 dark:text-blue-200 mb-2">
+              📬 Check Your Email
+            </h3>
+            <p className="text-sm text-blue-700 dark:text-blue-300 mb-3">
+              If you don't see the email in your inbox, <strong>please check your spam/junk folder</strong>
+            </p>
+          </div>
+        </div>
+        <div className="space-y-2 text-sm text-blue-700 dark:text-blue-300">
+          <div className="flex items-center space-x-2">
+            <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">1</span>
+            <span>Open the verification email</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">2</span>
+            <span>Click the verification link</span>
+          </div>
+          <div className="flex items-center space-x-2">
+            <span className="w-5 h-5 bg-blue-500 text-white rounded-full flex items-center justify-center text-xs font-bold">3</span>
+            <span>Return here to log in and get <strong>10 bonus credits!</strong></span>
+          </div>
+        </div>
+      </div>
+      {/* Action Buttons */}
+      <div className="space-y-3">
+        <button
+          onClick={onGoToLogin}
+          className="w-full py-4 rounded-xl bg-gradient-to-r from-purple-600 to-pink-500 text-white font-bold shadow-lg transition-all hover:scale-105 hover:shadow-xl"
+        >
+          I'll Verify Later - Go to Login
+        </button>
+        <button
+          onClick={handleResendEmail}
+          disabled={isResending}
+          className="w-full py-3 rounded-xl border-2 border-purple-600 text-purple-600 font-semibold transition-all hover:bg-purple-50 dark:hover:bg-purple-900/20 disabled:opacity-50"
+        >
+          {isResending ? 'Sending...' : 'Didn\'t Receive Email? Resend'}
+        </button>
+        <button
+          onClick={onClose}
+          className="w-full py-2 text-sm text-slate-400 hover:text-slate-600 dark:hover:text-slate-300 transition-colors"
+        >
+          Close
+        </button>
+      </div>
+    </motion.div>
+  );
+};
+export default function RegisterFormV2({ onSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
@@ -12,35 +116,52 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
   const [name, setName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
+  const [showVerificationModal, setShowVerificationModal] = useState(false);
   const { signup, loginWithGoogle } = useAuthContext();
-  
+  // Persist modal state to prevent re-render issues
+  useEffect(() => {
+    const shouldShowModal = sessionStorage.getItem('show_verification_modal');
+    if (shouldShowModal === 'true') {
+      setShowVerificationModal(true);
+      sessionStorage.removeItem('show_verification_modal');
+    }
+  }, []);
   const handleSubmit = async (e) => {
     e.preventDefault();
-    
+    // Prevent multiple submissions
+    if (isLoading) {
+      return;
+    }
     // Password confirmation check
     if (password !== confirmPassword) {
       setError('Passwords do not match');
       return;
     }
-    
     setIsLoading(true);
     setError('');
-    
     try {
-      console.log('Creating new account for:', email);
-      await signup(email, password);
-      
-      // Show loading for at least 1.5 seconds to give time for Firestore operations
-      setTimeout(() => {
-        if (onSuccess) onSuccess();
-        setIsLoading(false);
-        
-        // Show verification message
-        alert("Registration successful! Please check your email to verify your account before logging in.");
-      }, 1500);
+      // Create Firebase Auth account immediately (but unverified)
+      const userCredential = await signup(email, password);
+      const user = userCredential.user;
+
+      // Send verification email using Firebase's built-in method with custom settings
+      await sendEmailVerification(user, {
+        url: `${window.location.origin}?verified=true`,
+        handleCodeInApp: false
+      });
+
+      // Let AuthContext handle user profile creation naturally
+      // Don't sign out immediately - let the user stay logged in but show verification modal
+      // The login check will handle blocking unverified users
+
+      // Show success message
+      setError('');
+      setIsLoading(false);
+
+      // Show verification modal - use sessionStorage to persist across re-renders
+      sessionStorage.setItem('show_verification_modal', 'true');
+      setShowVerificationModal(true);
     } catch (err) {
-      console.error("Registration error:", err);
       // Handle common Firebase auth errors
       if (err.code === 'auth/email-already-in-use') {
         setError('Email is already in use. Try logging in instead');
@@ -54,25 +175,19 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
       setIsLoading(false);
     }
   };
-  
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     setError('');
-    
     try {
-      console.log('Signing up with Google');
       await loginWithGoogle();
-      
       // Extend loading time to ensure Firebase operations complete
       setTimeout(() => {
         if (onSuccess) {
-          console.log('Google signup successful, completing onSuccess');
           onSuccess();
         }
         setIsLoading(false);
       }, 3000);
     } catch (err) {
-      console.error("Google signup error:", err);
       if (err.code === 'auth/popup-closed-by-user') {
         setError('Sign-up cancelled. Please try again.');
       } else {
@@ -81,11 +196,9 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
       setIsLoading(false);
     }
   };
-
   return (
     <form className="bg-[rgba(30,41,59,0.75)] dark:bg-[rgba(15,23,42,0.75)] backdrop-blur-md h-full flex flex-col justify-center items-center p-8 pb-12 text-center border-r border-white/5" onSubmit={handleSubmit}>
       <h1 className="text-2xl font-bold text-white mb-1">Create Account</h1>
-      
       {error && (
         <motion.div 
           initial={{ opacity: 0, y: -10 }}
@@ -95,7 +208,6 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
           {error}
         </motion.div>
       )}
-      
       <div className={`${styles.socialContainer} my-1`}>
         <button 
           type="button"
@@ -110,9 +222,7 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
           </svg>
         </button>
       </div>
-      
       <span className="text-sm text-white my-1">or use your email for registration</span>
-      
       <div className="w-full space-y-2 mt-2">
         <div className="relative">
           <input 
@@ -123,7 +233,6 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
             onChange={(e) => setName(e.target.value)}
           />
         </div>
-        
         <div className="relative">
           <input 
             type="email"
@@ -134,7 +243,6 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
             required
           />
         </div>
-        
         <div className="relative">
           <input 
             type={showPassword ? "text" : "password"}
@@ -162,7 +270,6 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
             )}
           </button>
         </div>
-        
         <div className="relative">
           <input 
             type={showConfirmPassword ? "text" : "password"}
@@ -191,14 +298,26 @@ export default function RegisterFormV2({ onSignInClick, onSuccess }) {
           </button>
         </div>
       </div>
-      
       <button
         type="submit"
         disabled={isLoading}
         className="mt-5 mb-3 px-8 py-2 rounded-full bg-gradient-to-r from-purple-600 to-pink-600 text-white font-bold uppercase tracking-wider hover:from-purple-700 hover:to-pink-700 transition-all disabled:opacity-50 shadow-lg shadow-purple-500/20 w-40"
       >
-        {isLoading ? 'Signing up...' : 'Sign Up'}
+        {isLoading ? 'Creating Account...' : 'Sign Up'}
       </button>
+      {/* Email Verification Modal */}
+      {showVerificationModal && (
+        <div className="fixed inset-0 z-[9999] flex items-center justify-center bg-black/50 backdrop-blur-sm">
+          <EmailVerificationModal
+            email={email}
+            onClose={() => setShowVerificationModal(false)}
+            onGoToLogin={() => {
+              setShowVerificationModal(false);
+              if (onSuccess) onSuccess(); // This will switch to login form
+            }}
+          />
+        </div>
+      )}
     </form>
   );
 }

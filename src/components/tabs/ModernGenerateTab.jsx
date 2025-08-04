@@ -329,6 +329,13 @@ const ModernGenerateTab = memo(({
                       className="max-w-full max-h-full object-contain"
                       onLoad={handleImageLoadComplete}
                       onError={handleImageLoadError}
+                      loading="lazy"
+                      decoding="async"
+                      style={{
+                        maxWidth: '100%',
+                        height: 'auto',
+                        imageRendering: 'crisp-edges'
+                      }}
                     />
                     
                     {/* Loading Overlay */}

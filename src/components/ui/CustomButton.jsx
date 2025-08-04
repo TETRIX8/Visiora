@@ -41,6 +41,10 @@ const CustomButton = ({
       whileTap={{ scale: disabled ? 1 : 0.98 }}
       transition={{ type: "spring", stiffness: 400, damping: 25 }}
       disabled={disabled || loading}
+      style={{
+        touchAction: 'manipulation', // Prevents double-tap zoom on mobile
+        WebkitTapHighlightColor: 'transparent' // Removes tap highlight on iOS
+      }}
       {...props}
     >
       {loading && (

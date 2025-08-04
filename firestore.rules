@@ -40,5 +40,15 @@ service cloud.firestore {
     match /_visiora_test/{docId} {
       allow read, write: if isSignedIn();
     }
+
+    // OTP verification collection - allow anonymous access for OTP verification
+    match /otp_verifications/{email} {
+      allow read, write: if true; // Allow anonymous access for OTP functionality
+    }
+
+    // Temporary signups collection - allow anonymous access for signup flow
+    match /temp_signups/{tempId} {
+      allow read, write: if true; // Allow anonymous access for temporary signup storage
+    }
   }
 }

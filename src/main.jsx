@@ -4,14 +4,8 @@ import './index.css'
 import App from './App.jsx'
 import MemoizedBackground from './components/layout/MemoizedBackground';
 
-// Import console helpers for debugging
-import './api/consoleHelpers';
-// Import migration service for database structure updates
-import './api/migrationService';
-// Import secure request helpers
-
 import { setupSecureConsole  } from './utils/secureRequestHelper.js';
-
+import './utils/productionCheck.js';
 
 // Setup secure console to hide sensitive URLs (e.g., API_URL, pollinations.ai)
 setupSecureConsole();
@@ -19,7 +13,7 @@ setupSecureConsole();
 
 createRoot(document.getElementById("root")).render(
   <>
-    <MemoizedBackground />
+    <MemoizedBackground key="persistent-background" />
     <StrictMode>
       <App />
     </StrictMode>

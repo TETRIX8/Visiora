@@ -3,7 +3,7 @@ import React from 'react';
 import { motion } from 'framer-motion';
 import { Sparkles, Wand2, Zap } from 'lucide-react';
 import TypewriterEffect from '../TypewriterEffect';
-import { DotPattern } from '../ui/shadcn-io/dot-pattern';
+import DotBackgroundDemo from '../ui/dot-background-demo';
 import { cn } from '../../lib/utils';
 
 const Hero = () => {
@@ -27,13 +27,20 @@ const Hero = () => {
 
   return (
     <section className="relative min-h-screen flex items-center justify-center pt-20 overflow-hidden -translate-y-[20vh]">
-      {/* Dot Pattern Background */}
-      <DotPattern
-        className={cn(
-          "[mask-image:radial-gradient(800px_circle_at_center,white,transparent)]",
-          "opacity-40 dark:opacity-20"
-        )}
-      />
+      {/* New Dot Background */}
+      <div className="absolute inset-0 overflow-hidden">
+        <div
+          className={cn(
+            "absolute inset-0",
+            "[background-size:40px_40px]",
+            "[background-image:radial-gradient(#d4d4d4_2px,transparent_2px)]",
+            "dark:[background-image:radial-gradient(#404040_2px,transparent_2px)]",
+            "opacity-80 dark:opacity-60"
+          )}
+        />
+        {/* Radial gradient for faded look */}
+        <div className="pointer-events-none absolute inset-0 bg-white [mask-image:radial-gradient(ellipse_at_center,transparent_20%,black)] dark:bg-black opacity-40"></div>
+      </div>
       
       <div className="container mx-auto px-6 text-center relative z-10">
         {/* Main Title */}

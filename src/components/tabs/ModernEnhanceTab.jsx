@@ -5,7 +5,7 @@ import { Sparkles, Wand2, X, Zap, Stars } from "lucide-react";
 import GlassCard from "../ui/GlassCard";
 import CustomButton from "../ui/CustomButton";
 import ExamplePromptsGrid from "../examples/ExamplePromptsGrid";
-import { SocialLinksDemo } from "../ui/SocialLinksDemo";
+
 import { cn } from "../../utils/cn";
 
 const ModernEnhanceTab = memo(({
@@ -386,9 +386,6 @@ const ModernEnhanceTab = memo(({
 
       {/* Example Prompts Grid - Full Width */}
       <ExamplePromptsGrid onPromptSelect={setInputPrompt} />
-      
-      {/* Social Links Section */}
-      <SocialLinksDemo />
       </div>
 
       {/* Styles Applied Popup - Outside main container */}

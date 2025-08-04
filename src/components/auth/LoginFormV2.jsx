@@ -2,70 +2,91 @@ import React, { useState } from 'react';
 import { useAuthContext } from '../../contexts/AuthContextV2';
 import { motion } from 'framer-motion';
 import styles from './SliderAuth.module.css';
-
-export default function LoginFormV2({ onSignUpClick, onSuccess }) {
+import { addPaidCredits } from '../../api/creditsServiceV2';
+export default function LoginFormV2({ onSuccess }) {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
-  
-  const { login, loginWithGoogle } = useAuthContext();
-  
+  const { login, loginWithGoogle, logout } = useAuthContext();
   const handleSubmit = async (e) => {
     e.preventDefault();
     setIsLoading(true);
     setError('');
-    
     try {
-      console.log('Attempting to login with email:', email);
-      
       // Store current anonymous credits before login
       const currentCredits = localStorage.getItem('visiora_anonymous_credits');
       if (currentCredits !== null) {
         localStorage.setItem('visiora_previous_credits', currentCredits);
       }
-      
-      await login(email, password);
-      
+      const userCredential = await login(email, password);
+      const user = userCredential.user;
+      // Check if email is verified
+      if (!user.emailVerified) {
+        // Sign out the user immediately
+        await logout();
+        setError('Please verify your email before logging in.');
+        setIsLoading(false);
+        if (import.meta.env.DEV) {
+          console.log('🚫 Email not verified, error set:', 'Please verify your email before logging in.');
+        }
+        // Don't call onSuccess - keep modal open to show error
+        return;
+      }
+      // Check if this is the first login after email verification
+      // Give 10 bonus paid credits for email verification
+      try {
+        const hasReceivedVerificationBonus = localStorage.getItem(`verification_bonus_${user.uid}`);
+        if (!hasReceivedVerificationBonus) {
+          // Wait a bit for user document to be created
+          await new Promise(resolve => setTimeout(resolve, 1000));
+          const result = await addPaidCredits(user.uid, 10);
+          if (result && result.paidCredits !== undefined) {
+            // Mark that user has received verification bonus
+            localStorage.setItem(`verification_bonus_${user.uid}`, 'true');
+          }
+        }
+      } catch (creditError) {
+        // Don't block login if credits fail
+      }
       // Show loading for at least 1 second to give time for Firestore operations
       setTimeout(() => {
         if (onSuccess) onSuccess();
         setIsLoading(false);
       }, 1000);
     } catch (err) {
-      console.error("Login error:", err);
-      // Handle common Firebase auth errors
-      if (err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
-        setError('Invalid email or password');
+      // Handle common Firebase auth errors with user-friendly messages
+      if (err.code === 'auth/invalid-credential' || err.code === 'auth/user-not-found' || err.code === 'auth/wrong-password') {
+        setError('Incorrect email or password. Please try again.');
+      } else if (err.code === 'auth/account-exists-with-different-credential') {
+        setError('This email is linked with Google. Please sign in using Google.');
       } else if (err.code === 'auth/too-many-requests') {
         setError('Too many failed login attempts. Please try again later or reset your password');
       } else if (err.code === 'auth/invalid-email') {
-        setError('Invalid email address format');
+        setError('Please enter a valid email address.');
+      } else if (err.code === 'auth/user-disabled') {
+        setError('This account has been disabled. Please contact support.');
       } else if (err.message && err.message.includes('verify your email')) {
-        setError('Please verify your email address before logging in. Check your inbox for a verification link.');
+        setError('Please verify your email before logging in.');
+      } else if (err.message && err.message.includes('Google')) {
+        setError('This email is linked with Google. Please sign in using Google.');
       } else {
-        setError(err.message || 'Failed to sign in');
+        setError('Failed to sign in. Please try again.');
       }
       setIsLoading(false);
     }
   };
-  
   const handleGoogleLogin = async () => {
     setIsLoading(true);
     setError('');
-    
     try {
-      console.log('Attempting to login with Google');
-      
       // Store current anonymous credits before login
       const currentCredits = localStorage.getItem('visiora_anonymous_credits');
       if (currentCredits !== null) {
         localStorage.setItem('visiora_previous_credits', currentCredits);
       }
-      
       await loginWithGoogle();
-      
       // Give more time for Firebase operations to complete
       setTimeout(() => {
         if (onSuccess) onSuccess();
@@ -81,21 +102,32 @@ export default function LoginFormV2({ onSignUpClick, onSuccess }) {
       setIsLoading(false);
     }
   };
-
   return (
     <form className="bg-[rgba(30,41,59,0.75)] dark:bg-[rgba(15,23,42,0.75)] backdrop-blur-md h-full flex flex-col justify-center items-center p-8 pb-12 text-center border-r border-white/5" onSubmit={handleSubmit}>
       <h1 className="text-2xl font-bold text-white mb-4">Sign In</h1>
-      
       {error && (
-        <motion.div 
+        <motion.div
           initial={{ opacity: 0, y: -10 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 p-3 bg-red-500/20 text-red-200 rounded-lg text-sm w-full"
+          className="mb-4 p-4 bg-red-500/20 border border-red-500/30 text-red-200 rounded-xl text-sm w-full"
         >
-          {error}
+          <div className="flex items-start space-x-3">
+            <svg className="w-5 h-5 text-red-400 flex-shrink-0 mt-0.5" fill="currentColor" viewBox="0 0 20 20">
+              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z" clipRule="evenodd" />
+            </svg>
+            <div className="whitespace-pre-line leading-relaxed">
+              {error}
+            </div>
+          </div>
         </motion.div>
       )}
-      
+
+      {/* Debug info in development */}
+      {import.meta.env.DEV && error && (
+        <div className="mb-2 p-2 bg-yellow-500/20 border border-yellow-500/30 text-yellow-200 rounded text-xs">
+          Debug: Error state = "{error}"
+        </div>
+      )}
       <div className={`${styles.socialContainer} my-4`}>
         <button 
           type="button"
@@ -110,9 +142,7 @@ export default function LoginFormV2({ onSignUpClick, onSuccess }) {
           </svg>
         </button>
       </div>
-      
       <span className="text-sm text-white my-1">or use your account</span>
-      
       <div className="w-full space-y-2 mt-2">
         <div className="relative">
           <input 
@@ -124,7 +154,6 @@ export default function LoginFormV2({ onSignUpClick, onSuccess }) {
             required
           />
         </div>
-        
         <div className="relative">
           <input 
             type={showPassword ? "text" : "password"}
@@ -153,7 +182,6 @@ export default function LoginFormV2({ onSignUpClick, onSuccess }) {
           </button>
         </div>
       </div>
-      
       <button
         type="submit"
         disabled={isLoading}

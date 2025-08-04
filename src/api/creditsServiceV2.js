@@ -1,530 +1,1 @@
-import { 
-  doc, 
-  getDoc, 
-  setDoc, 
-  updateDoc,
-  increment,
-  serverTimestamp 
-} from 'firebase/firestore';
-import { db, auth } from '../lib/firebase';
-
-// Credit constants
-export const ANONYMOUS_CREDITS = 10;     // Credits for non-logged in users
-export const LOGIN_BONUS_FREE_CREDITS = 10;   // Bonus free credits when logging in
-export const LOGIN_BONUS_PAID_CREDITS = 0;   // Bonus paid credits when logging in (can be changed later)
-export const DAILY_FREE_CREDITS = 10;    // Daily free credits that reset at midnight
-export const DEFAULT_MAX_FREE_CREDITS = 10;  // Maximum free credits a user can have
-
-/**
- * Get or initialize credits for anonymous user from localStorage
- * @returns {number} Number of anonymous credits
- */
-export const getAnonymousCredits = () => {
-  const storedCredits = localStorage.getItem('visiora_anonymous_credits');
-  
-  if (storedCredits === null) {
-    // First time user, initialize with ANONYMOUS_CREDITS
-    localStorage.setItem('visiora_anonymous_credits', ANONYMOUS_CREDITS.toString());
-    return ANONYMOUS_CREDITS;
-  }
-  
-  // Ensure we're returning a valid number
-  const parsedCredits = parseInt(storedCredits, 10);
-  return isNaN(parsedCredits) ? ANONYMOUS_CREDITS : parsedCredits;
-};
-
-/**
- * Decrease anonymous credits by 1
- * @returns {number} Remaining anonymous credits
- */
-export const decreaseAnonymousCredits = () => {
-  try {
-    // Force get from localStorage directly
-    let storedCredits = localStorage.getItem('visiora_anonymous_credits');
-    
-    // If null or not a number, reset to default
-    if (storedCredits === null || isNaN(parseInt(storedCredits, 10))) {
-      localStorage.setItem('visiora_anonymous_credits', ANONYMOUS_CREDITS.toString());
-      storedCredits = ANONYMOUS_CREDITS.toString();
-    }
-    
-    const currentCredits = parseInt(storedCredits, 10);
-    console.log('Anonymous credits before decrease (direct):', currentCredits);
-    
-    if (currentCredits <= 0) {
-      console.log('No anonymous credits left');
-      localStorage.setItem('visiora_anonymous_credits', '0');
-      return 0; // No credits left
-    }
-    
-    const newCredits = currentCredits - 1;
-    console.log('Anonymous credits after decrease:', newCredits);
-    
-    // Set the new value
-    localStorage.setItem('visiora_anonymous_credits', newCredits.toString());
-    
-    // Verify the credits were actually saved
-    const verifiedCredits = parseInt(localStorage.getItem('visiora_anonymous_credits'), 10);
-    console.log('Verified anonymous credits after saving:', verifiedCredits);
-    
-    return verifiedCredits;
-  } catch (error) {
-    console.error('Error decreasing anonymous credits:', error);
-    return 0;
-  }
-};
-
-/**
- * Get all credits for authenticated user from Firestore
- * @param {string} userId - User ID
- * @returns {Promise<Object>} Object containing free and paid credits
- */
-export const getUserCredits = async (userId) => {
-  if (!userId) {
-    const anonymousCredits = getAnonymousCredits();
-    return { 
-      freeCredits: anonymousCredits,
-      paidCredits: 0,
-      total: anonymousCredits
-    };
-  }
-  
-  try {
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    
-    console.log('Fetching credits for user:', userId);
-    console.log('User document exists:', userDoc.exists());
-    
-    if (!userDoc.exists() || userDoc.data().credits === undefined) {
-      console.log('User credits not found, initializing with bonus credits');
-      
-      // Initialize credits for new user
-      const userData = {
-        credits: { // New structure with both types of credits
-          free: LOGIN_BONUS_FREE_CREDITS,
-          paid: LOGIN_BONUS_PAID_CREDITS
-        },
-        lastCreditRefresh: serverTimestamp(),
-        lastLogin: serverTimestamp()
-      };
-      
-      // If user doesn't exist at all, add more required fields
-      if (!userDoc.exists()) {
-        userData.email = auth.currentUser?.email || 'unknown@user.com';
-        userData.name = auth.currentUser?.displayName || 'User'; // Use "name" to match Firestore schema
-        userData.createdAt = serverTimestamp();
-      }
-      
-      // Use setDoc with merge to ensure we don't overwrite existing data
-      await setDoc(userRef, userData, { merge: true });
-      
-      console.log('Credits initialized for user:', LOGIN_BONUS_FREE_CREDITS + LOGIN_BONUS_PAID_CREDITS);
-      return {
-        freeCredits: LOGIN_BONUS_FREE_CREDITS,
-        paidCredits: LOGIN_BONUS_PAID_CREDITS,
-        total: LOGIN_BONUS_FREE_CREDITS + LOGIN_BONUS_PAID_CREDITS
-      };
-    }
-    
-    // Check if we need to migrate from old credits system
-    const userData = userDoc.data();
-    if (typeof userData.credits === 'number') {
-      // Migrate from old credits system
-      console.log('Migrating from old credits system to new system');
-      
-      // Convert old credits to paid credits since they were persistent
-      const oldCredits = userData.credits || 0;
-      const migratedCredits = {
-        free: DAILY_FREE_CREDITS, // Start with max free credits
-        paid: oldCredits          // Convert old credits to paid credits
-      };
-      
-      await updateDoc(userRef, {
-        credits: migratedCredits,
-        lastCreditRefresh: serverTimestamp()
-      });
-      
-      return {
-        freeCredits: migratedCredits.free,
-        paidCredits: migratedCredits.paid,
-        total: migratedCredits.free + migratedCredits.paid
-      };
-    }
-    
-    // Handle new credits structure
-    const credits = userData.credits || { free: 0, paid: 0 };
-    const lastRefresh = userData.lastCreditRefresh?.toDate() || new Date(0);
-    const now = new Date();
-    
-    // Reset free credits at midnight
-    const isNewDay = lastRefresh.getDate() !== now.getDate() || 
-                     lastRefresh.getMonth() !== now.getMonth() || 
-                     lastRefresh.getFullYear() !== now.getFullYear();
-    
-    if (isNewDay) {
-      console.log('New day detected, resetting free credits to', DAILY_FREE_CREDITS);
-      
-      const updatedCredits = {
-        free: DAILY_FREE_CREDITS, // Reset to daily maximum
-        paid: credits.paid || 0   // Keep paid credits unchanged
-      };
-      
-      await updateDoc(userRef, {
-        credits: updatedCredits,
-        lastCreditRefresh: serverTimestamp()
-      });
-      
-      return {
-        freeCredits: updatedCredits.free,
-        paidCredits: updatedCredits.paid,
-        total: updatedCredits.free + updatedCredits.paid
-      };
-    }
-    
-    // Return current credits
-    const freeCredits = credits.free || 0;
-    const paidCredits = credits.paid || 0;
-    
-    return {
-      freeCredits,
-      paidCredits,
-      total: freeCredits + paidCredits
-    };
-  } catch (error) {
-    console.error("Error fetching user credits:", error);
-    return {
-      freeCredits: 0,
-      paidCredits: 0,
-      total: 0
-    };
-  }
-};
-
-/**
- * Decrease user credits by 1 when generating an image
- * Free credits are used first, then paid credits
- * @param {string} userId - User ID
- * @returns {Promise<Object|false>} Updated credits object or false if failed
- */
-export const useCredit = async (userId) => {
-  if (!userId) {
-    const remainingAnonymousCredits = decreaseAnonymousCredits();
-    return {
-      freeCredits: remainingAnonymousCredits,
-      paidCredits: 0,
-      total: remainingAnonymousCredits
-    };
-  }
-  
-  try {
-    console.log('Using credit for user:', userId);
-    const userRef = doc(db, 'users', userId);
-    let userDoc;
-    
-    try {
-      userDoc = await getDoc(userRef);
-    } catch (fetchError) {
-      console.error('Error fetching user document:', fetchError);
-      // Retry once
-      await new Promise(resolve => setTimeout(resolve, 800));
-      userDoc = await getDoc(userRef);
-    }
-    
-    if (!userDoc.exists()) {
-      console.error('User document not found when spending credit');
-      
-      // Try to create user document as last resort
-      const currentUser = auth.currentUser;
-      if (currentUser && currentUser.uid === userId) {
-        console.log('Attempting to create missing user during credit spend');
-        
-        const newCredits = {
-          free: LOGIN_BONUS_FREE_CREDITS - 1, // Start with login bonus minus one
-          paid: LOGIN_BONUS_PAID_CREDITS      // Start with default paid credits
-        };
-        
-        await setDoc(userRef, {
-          email: currentUser.email || 'unknown@user.com',
-          name: currentUser.displayName || 'User',
-          createdAt: serverTimestamp(),
-          lastLogin: serverTimestamp(),
-          credits: newCredits,
-          lastCreditRefresh: serverTimestamp()
-        });
-        
-        return {
-          freeCredits: newCredits.free,
-          paidCredits: newCredits.paid,
-          total: newCredits.free + newCredits.paid
-        };
-      }
-      
-      return false; // User doesn't exist and couldn't create
-    }
-    
-    const userData = userDoc.data();
-    
-    // Handle migration from old credits system
-    if (typeof userData.credits === 'number') {
-      const oldCredits = userData.credits || 0;
-      
-      if (oldCredits <= 0) {
-        console.log('User has no credits left:', oldCredits);
-        return {
-          freeCredits: 0,
-          paidCredits: 0,
-          total: 0
-        };
-      }
-      
-      // Migrate to new system while using a credit
-      const migratedCredits = {
-        free: DAILY_FREE_CREDITS - 1, // Start with max free credits minus one used
-        paid: oldCredits               // Convert old credits to paid credits
-      };
-      
-      await updateDoc(userRef, {
-        credits: migratedCredits,
-        lastCreditRefresh: serverTimestamp()
-      });
-      
-      return {
-        freeCredits: migratedCredits.free,
-        paidCredits: migratedCredits.paid,
-        total: migratedCredits.free + migratedCredits.paid
-      };
-    }
-    
-    // Handle new credits structure
-    const credits = userData.credits || { free: 0, paid: 0 };
-    const freeCredits = credits.free || 0;
-    const paidCredits = credits.paid || 0;
-    const totalCredits = freeCredits + paidCredits;
-    
-    console.log('Current credits:', { free: freeCredits, paid: paidCredits, total: totalCredits });
-    
-    if (totalCredits <= 0) {
-      console.log('User has no credits left');
-      return {
-        freeCredits: 0,
-        paidCredits: 0,
-        total: 0
-      };
-    }
-    
-    // Determine which credits to use (free first, then paid)
-    const updatedCredits = { ...credits };
-    
-    if (freeCredits > 0) {
-      // Use free credits first
-      updatedCredits.free = freeCredits - 1;
-    } else {
-      // Use paid credits if no free credits available
-      updatedCredits.paid = paidCredits - 1;
-    }
-    
-    // Update the database
-    try {
-      await updateDoc(userRef, {
-        credits: updatedCredits
-      });
-    } catch (updateError) {
-      console.error('Error updating credits:', updateError);
-      // Retry with merge option
-      await setDoc(userRef, { credits: updatedCredits }, { merge: true });
-    }
-    
-    // Verify the update was successful
-    try {
-      const verifyDoc = await getDoc(userRef);
-      const verifiedCredits = verifyDoc.data().credits;
-      console.log('Verified credits after update:', verifiedCredits);
-      
-      return {
-        freeCredits: verifiedCredits.free || 0,
-        paidCredits: verifiedCredits.paid || 0,
-        total: (verifiedCredits.free || 0) + (verifiedCredits.paid || 0)
-      };
-    } catch (verifyError) {
-      console.error('Error verifying credit update:', verifyError);
-      return {
-        freeCredits: updatedCredits.free,
-        paidCredits: updatedCredits.paid,
-        total: updatedCredits.free + updatedCredits.paid
-      };
-    }
-  } catch (error) {
-    console.error("Error using credit:", error);
-    return false;
-  }
-};
-
-/**
- * Add paid credits to a user's account
- * @param {string} userId - User ID
- * @param {number} amount - Number of credits to add
- * @returns {Promise<Object|false>} Updated credits object or false if failed
- */
-export const addPaidCredits = async (userId, amount) => {
-  if (!userId || !amount || amount <= 0) return false;
-  
-  try {
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    
-    if (!userDoc.exists()) {
-      console.error('User document not found when adding paid credits');
-      return false;
-    }
-    
-    const userData = userDoc.data();
-    
-    // Handle migration from old credits system
-    if (typeof userData.credits === 'number') {
-      const oldCredits = userData.credits || 0;
-      
-      // Migrate to new system and add paid credits
-      const migratedCredits = {
-        free: DAILY_FREE_CREDITS,
-        paid: oldCredits + amount
-      };
-      
-      await updateDoc(userRef, {
-        credits: migratedCredits,
-        lastCreditRefresh: serverTimestamp()
-      });
-      
-      return {
-        freeCredits: migratedCredits.free,
-        paidCredits: migratedCredits.paid,
-        total: migratedCredits.free + migratedCredits.paid
-      };
-    }
-    
-    // Handle new credits structure
-    const credits = userData.credits || { free: 0, paid: 0 };
-    const paidCredits = credits.paid || 0;
-    
-    const updatedCredits = {
-      ...credits,
-      paid: paidCredits + amount
-    };
-    
-    await updateDoc(userRef, {
-      credits: updatedCredits
-    });
-    
-    return {
-      freeCredits: updatedCredits.free || 0,
-      paidCredits: updatedCredits.paid,
-      total: (updatedCredits.free || 0) + updatedCredits.paid
-    };
-  } catch (error) {
-    console.error("Error adding paid credits:", error);
-    return false;
-  }
-};
-
-/**
- * Initialize or refresh credits when user logs in
- * @param {string} userId - User ID
- * @returns {Promise<Object|false>} Updated credits object or false if failed
- */
-export const initializeCreditsOnLogin = async (userId) => {
-  if (!userId) return false;
-  
-  try {
-    console.log('Initializing credits for user:', userId);
-    const userRef = doc(db, 'users', userId);
-    const userDoc = await getDoc(userRef);
-    
-    const anonymousCredits = getAnonymousCredits();
-    console.log('Anonymous credits before login:', anonymousCredits);
-    
-    if (!userDoc.exists()) {
-      console.log('User document not found in Firestore, creating new user with credits');
-      // New user login - grant login bonus credits
-      const newCredits = {
-        free: LOGIN_BONUS_FREE_CREDITS,
-        paid: LOGIN_BONUS_PAID_CREDITS
-      };
-      
-      await setDoc(userRef, {
-        credits: newCredits,
-        lastCreditRefresh: serverTimestamp(),
-        lastLogin: serverTimestamp(),
-        createdAt: serverTimestamp()
-      }, { merge: true });
-      
-      console.log('New user initialized with credits:', newCredits);
-      return {
-        freeCredits: newCredits.free,
-        paidCredits: newCredits.paid,
-        total: newCredits.free + newCredits.paid
-      };
-    } else {
-      console.log('Existing user found, updating credits');
-      const userData = userDoc.data();
-      const now = new Date();
-      
-      // Handle migration from old credits system
-      if (typeof userData.credits === 'number') {
-        const oldCredits = userData.credits || 0;
-        
-        // Migrate to new system
-        const migratedCredits = {
-          free: DAILY_FREE_CREDITS,
-          paid: oldCredits
-        };
-        
-        await updateDoc(userRef, {
-          credits: migratedCredits,
-          lastCreditRefresh: serverTimestamp(),
-          lastLogin: serverTimestamp()
-        });
-        
-        return {
-          freeCredits: migratedCredits.free,
-          paidCredits: migratedCredits.paid,
-          total: migratedCredits.free + migratedCredits.paid
-        };
-      }
-      
-      // Handle new credits structure
-      const credits = userData.credits || { free: 0, paid: 0 };
-      const lastLogin = userData.lastLogin?.toDate() || new Date(0);
-      const lastRefresh = userData.lastCreditRefresh?.toDate() || new Date(0);
-      
-      // Check if this is first login of the day (for daily credits reset)
-      const isNewDay = lastRefresh.getDate() !== now.getDate() || 
-                       lastRefresh.getMonth() !== now.getMonth() || 
-                       lastRefresh.getFullYear() !== now.getFullYear();
-      
-      let updatedCredits = { ...credits };
-      
-      if (isNewDay) {
-        // Reset free credits to daily maximum
-        updatedCredits.free = DAILY_FREE_CREDITS;
-        console.log(`Free credits reset to daily maximum (${DAILY_FREE_CREDITS})`);
-      }
-      
-      // Update user document
-      await updateDoc(userRef, {
-        lastLogin: serverTimestamp(),
-        credits: updatedCredits,
-        ...(isNewDay && { lastCreditRefresh: serverTimestamp() })
-      });
-      
-      console.log('User credits after initialization:', updatedCredits);
-      return {
-        freeCredits: updatedCredits.free,
-        paidCredits: updatedCredits.paid,
-        total: updatedCredits.free + updatedCredits.paid
-      };
-    }
-  } catch (error) {
-    console.error("Error initializing credits on login:", error);
-    return false;
-  }
-};
+import {   doc,   getDoc,   setDoc,   updateDoc,  increment,  serverTimestamp } from 'firebase/firestore';import { db, auth } from '../lib/firebase';// Credit constantsexport const ANONYMOUS_CREDITS = 10;     // Credits for non-logged in usersexport const LOGIN_BONUS_FREE_CREDITS = 10;   // Bonus free credits when logging inexport const LOGIN_BONUS_PAID_CREDITS = 0;   // Bonus paid credits when logging in (can be changed later)export const DAILY_FREE_CREDITS = 10;    // Daily free credits that reset at midnightexport const DEFAULT_MAX_FREE_CREDITS = 10;  // Maximum free credits a user can have/** * Get or initialize credits for anonymous user from localStorage * @returns {number} Number of anonymous credits */export const getAnonymousCredits = () => {  const storedCredits = localStorage.getItem('visiora_anonymous_credits');  if (storedCredits === null) {    // First time user, initialize with ANONYMOUS_CREDITS    localStorage.setItem('visiora_anonymous_credits', ANONYMOUS_CREDITS.toString());    return ANONYMOUS_CREDITS;  }  // Ensure we're returning a valid number  const parsedCredits = parseInt(storedCredits, 10);  return isNaN(parsedCredits) ? ANONYMOUS_CREDITS : parsedCredits;};/** * Decrease anonymous credits by 1 * @returns {number} Remaining anonymous credits */export const decreaseAnonymousCredits = () => {  try {    // Force get from localStorage directly    let storedCredits = localStorage.getItem('visiora_anonymous_credits');    // If null or not a number, reset to default    if (storedCredits === null || isNaN(parseInt(storedCredits, 10))) {      localStorage.setItem('visiora_anonymous_credits', ANONYMOUS_CREDITS.toString());      storedCredits = ANONYMOUS_CREDITS.toString();    }    const currentCredits = parseInt(storedCredits, 10);    console.log('Anonymous credits before decrease (direct):', currentCredits);    if (currentCredits <= 0) {      localStorage.setItem('visiora_anonymous_credits', '0');      return 0; // No credits left    }    const newCredits = currentCredits - 1;    // Set the new value    localStorage.setItem('visiora_anonymous_credits', newCredits.toString());    // Verify the credits were actually saved    const verifiedCredits = parseInt(localStorage.getItem('visiora_anonymous_credits'), 10);    return verifiedCredits;  } catch (error) {    console.error('Error decreasing anonymous credits:', error);    return 0;  }};/** * Get all credits for authenticated user from Firestore * @param {string} userId - User ID * @returns {Promise<Object>} Object containing free and paid credits */export const getUserCredits = async (userId) => {  if (!userId) {    const anonymousCredits = getAnonymousCredits();    return {       freeCredits: anonymousCredits,      paidCredits: 0,      total: anonymousCredits    };  }  try {    const userRef = doc(db, 'users', userId);    const userDoc = await getDoc(userRef);    console.log('User document exists:', userDoc.exists());    if (!userDoc.exists() || userDoc.data().credits === undefined) {      // Initialize credits for new user      const userData = {        credits: { // New structure with both types of credits          free: LOGIN_BONUS_FREE_CREDITS,          paid: LOGIN_BONUS_PAID_CREDITS        },        lastCreditRefresh: serverTimestamp(),        lastLogin: serverTimestamp()      };      // If user doesn't exist at all, add more required fields      if (!userDoc.exists()) {        userData.email = auth.currentUser?.email || 'unknown@user.com';        userData.name = auth.currentUser?.displayName || 'User'; // Use "name" to match Firestore schema        userData.createdAt = serverTimestamp();      }      // Use setDoc with merge to ensure we don't overwrite existing data      await setDoc(userRef, userData, { merge: true });      return {        freeCredits: LOGIN_BONUS_FREE_CREDITS,        paidCredits: LOGIN_BONUS_PAID_CREDITS,        total: LOGIN_BONUS_FREE_CREDITS + LOGIN_BONUS_PAID_CREDITS      };    }    // Check if we need to migrate from old credits system    const userData = userDoc.data();    if (typeof userData.credits === 'number') {      // Migrate from old credits system      // Convert old credits to paid credits since they were persistent      const oldCredits = userData.credits || 0;      const migratedCredits = {        free: DAILY_FREE_CREDITS, // Start with max free credits        paid: oldCredits          // Convert old credits to paid credits      };      await updateDoc(userRef, {        credits: migratedCredits,        lastCreditRefresh: serverTimestamp()      });      return {        freeCredits: migratedCredits.free,        paidCredits: migratedCredits.paid,        total: migratedCredits.free + migratedCredits.paid      };    }    // Handle new credits structure    const credits = userData.credits || { free: 0, paid: 0 };    const lastRefresh = userData.lastCreditRefresh?.toDate() || new Date(0);    const now = new Date();    // Reset free credits at midnight    const isNewDay = lastRefresh.getDate() !== now.getDate() ||                      lastRefresh.getMonth() !== now.getMonth() ||                      lastRefresh.getFullYear() !== now.getFullYear();    if (isNewDay) {      const updatedCredits = {        free: DAILY_FREE_CREDITS, // Reset to daily maximum        paid: credits.paid || 0   // Keep paid credits unchanged      };      await updateDoc(userRef, {        credits: updatedCredits,        lastCreditRefresh: serverTimestamp()      });      return {        freeCredits: updatedCredits.free,        paidCredits: updatedCredits.paid,        total: updatedCredits.free + updatedCredits.paid      };    }    // Return current credits    const freeCredits = credits.free || 0;    const paidCredits = credits.paid || 0;    return {      freeCredits,      paidCredits,      total: freeCredits + paidCredits    };  } catch (error) {    console.error("Error fetching user credits:", error);    return {      freeCredits: 0,      paidCredits: 0,      total: 0    };  }};/** * Decrease user credits by 1 when generating an image * Free credits are used first, then paid credits * @param {string} userId - User ID * @returns {Promise<Object|false>} Updated credits object or false if failed */export const useCredit = async (userId) => {  if (!userId) {    const remainingAnonymousCredits = decreaseAnonymousCredits();    return {      freeCredits: remainingAnonymousCredits,      paidCredits: 0,      total: remainingAnonymousCredits    };  }  try {    const userRef = doc(db, 'users', userId);    let userDoc;    try {      userDoc = await getDoc(userRef);    } catch (fetchError) {      console.error('Error fetching user document:', fetchError);      // Retry once      await new Promise(resolve => setTimeout(resolve, 800));      userDoc = await getDoc(userRef);    }    if (!userDoc.exists()) {      console.error('User document not found when spending credit');      // Try to create user document as last resort      const currentUser = auth.currentUser;      if (currentUser && currentUser.uid === userId) {        const newCredits = {          free: LOGIN_BONUS_FREE_CREDITS - 1, // Start with login bonus minus one          paid: LOGIN_BONUS_PAID_CREDITS      // Start with default paid credits        };        await setDoc(userRef, {          email: currentUser.email || 'unknown@user.com',          name: currentUser.displayName || 'User',          createdAt: serverTimestamp(),          lastLogin: serverTimestamp(),          credits: newCredits,          lastCreditRefresh: serverTimestamp()        });        return {          freeCredits: newCredits.free,          paidCredits: newCredits.paid,          total: newCredits.free + newCredits.paid        };      }      return false; // User doesn't exist and couldn't create    }    const userData = userDoc.data();    // Handle migration from old credits system    if (typeof userData.credits === 'number') {      const oldCredits = userData.credits || 0;      if (oldCredits <= 0) {        return {          freeCredits: 0,          paidCredits: 0,          total: 0        };      }      // Migrate to new system while using a credit      const migratedCredits = {        free: DAILY_FREE_CREDITS - 1, // Start with max free credits minus one used        paid: oldCredits               // Convert old credits to paid credits      };      await updateDoc(userRef, {        credits: migratedCredits,        lastCreditRefresh: serverTimestamp()      });      return {        freeCredits: migratedCredits.free,        paidCredits: migratedCredits.paid,        total: migratedCredits.free + migratedCredits.paid      };    }    // Handle new credits structure    const credits = userData.credits || { free: 0, paid: 0 };    const freeCredits = credits.free || 0;    const paidCredits = credits.paid || 0;    const totalCredits = freeCredits + paidCredits;    if (totalCredits <= 0) {      return {        freeCredits: 0,        paidCredits: 0,        total: 0      };    }    // Determine which credits to use (free first, then paid)    const updatedCredits = { ...credits };    if (freeCredits > 0) {      // Use free credits first      updatedCredits.free = freeCredits - 1;    } else {      // Use paid credits if no free credits available      updatedCredits.paid = paidCredits - 1;    }    // Update the database    try {      await updateDoc(userRef, {        credits: updatedCredits      });    } catch (updateError) {      console.error('Error updating credits:', updateError);      // Retry with merge option      await setDoc(userRef, { credits: updatedCredits }, { merge: true });    }    // Verify the update was successful    try {      const verifyDoc = await getDoc(userRef);      const verifiedCredits = verifyDoc.data().credits;      return {        freeCredits: verifiedCredits.free || 0,        paidCredits: verifiedCredits.paid || 0,        total: (verifiedCredits.free || 0) + (verifiedCredits.paid || 0)      };    } catch (verifyError) {      console.error('Error verifying credit update:', verifyError);      return {        freeCredits: updatedCredits.free,        paidCredits: updatedCredits.paid,        total: updatedCredits.free + updatedCredits.paid      };    }  } catch (error) {    console.error("Error using credit:", error);    return false;  }};/** * Add paid credits to a user's account * @param {string} userId - User ID * @param {number} amount - Number of credits to add * @returns {Promise<Object|false>} Updated credits object or false if failed */export const addPaidCredits = async (userId, amount) => {  if (!userId || !amount || amount <= 0) return false;  try {    const userRef = doc(db, 'users', userId);    const userDoc = await getDoc(userRef);    if (!userDoc.exists()) {      console.error('User document not found when adding paid credits');      return false;    }    const userData = userDoc.data();    // Handle migration from old credits system    if (typeof userData.credits === 'number') {      const oldCredits = userData.credits || 0;      // Migrate to new system and add paid credits      const migratedCredits = {        free: DAILY_FREE_CREDITS,        paid: oldCredits + amount      };      await updateDoc(userRef, {        credits: migratedCredits,        lastCreditRefresh: serverTimestamp()      });      return {        freeCredits: migratedCredits.free,        paidCredits: migratedCredits.paid,        total: migratedCredits.free + migratedCredits.paid      };    }    // Handle new credits structure    const credits = userData.credits || { free: 0, paid: 0 };    const paidCredits = credits.paid || 0;    const updatedCredits = {      ...credits,      paid: paidCredits + amount    };    await updateDoc(userRef, {      credits: updatedCredits    });    return {      freeCredits: updatedCredits.free || 0,      paidCredits: updatedCredits.paid,      total: (updatedCredits.free || 0) + updatedCredits.paid    };  } catch (error) {    console.error("Error adding paid credits:", error);    return false;  }};/** * Initialize or refresh credits when user logs in * @param {string} userId - User ID * @returns {Promise<Object|false>} Updated credits object or false if failed */export const initializeCreditsOnLogin = async (userId) => {  if (!userId) return false;  try {    const userRef = doc(db, 'users', userId);    const userDoc = await getDoc(userRef);    const anonymousCredits = getAnonymousCredits();    if (!userDoc.exists()) {      // New user login - grant login bonus credits      const newCredits = {        free: LOGIN_BONUS_FREE_CREDITS,        paid: LOGIN_BONUS_PAID_CREDITS      };      await setDoc(userRef, {        credits: newCredits,        lastCreditRefresh: serverTimestamp(),        lastLogin: serverTimestamp(),        createdAt: serverTimestamp()      }, { merge: true });      return {        freeCredits: newCredits.free,        paidCredits: newCredits.paid,        total: newCredits.free + newCredits.paid      };    } else {      const userData = userDoc.data();      const now = new Date();      // Handle migration from old credits system      if (typeof userData.credits === 'number') {        const oldCredits = userData.credits || 0;        // Migrate to new system        const migratedCredits = {          free: DAILY_FREE_CREDITS,          paid: oldCredits        };        await updateDoc(userRef, {          credits: migratedCredits,          lastCreditRefresh: serverTimestamp(),          lastLogin: serverTimestamp()        });        return {          freeCredits: migratedCredits.free,          paidCredits: migratedCredits.paid,          total: migratedCredits.free + migratedCredits.paid        };      }      // Handle new credits structure      const credits = userData.credits || { free: 0, paid: 0 };      const lastLogin = userData.lastLogin?.toDate() || new Date(0);      const lastRefresh = userData.lastCreditRefresh?.toDate() || new Date(0);      // Check if this is first login of the day (for daily credits reset)      const isNewDay = lastRefresh.getDate() !== now.getDate() ||                        lastRefresh.getMonth() !== now.getMonth() ||                        lastRefresh.getFullYear() !== now.getFullYear();      let updatedCredits = { ...credits };      if (isNewDay) {        // Reset free credits to daily maximum        updatedCredits.free = DAILY_FREE_CREDITS;        console.log(`Free credits reset to daily maximum (${DAILY_FREE_CREDITS})`);      }      // Update user document      await updateDoc(userRef, {        lastLogin: serverTimestamp(),        credits: updatedCredits,        ...(isNewDay && { lastCreditRefresh: serverTimestamp() })      });      return {        freeCredits: updatedCredits.free,        paidCredits: updatedCredits.paid,        total: updatedCredits.free + updatedCredits.paid      };    }  } catch (error) {    console.error("Error initializing credits on login:", error);    return false;  }};

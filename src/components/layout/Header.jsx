@@ -5,13 +5,26 @@ import { Palette } from 'lucide-react';
 import ModernThemeToggle from '../ui/ModernThemeToggle';
 import UserProfileButtonFixed from '../auth/UserProfileButtonFixed';
 import AuthModalV2 from '../auth/AuthModalV2';
+import MobileAuthModalV2 from '../auth/MobileAuthModalV2';
 import Button from '../ui/Button';
 import { useAuthContext } from '../../contexts/AuthContextV2';
 
 const Header = ({ isDarkMode, onThemeChange }) => {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
   const [authModalMode, setAuthModalMode] = useState('login');
+  const [isMobile, setIsMobile] = useState(false);
   const { user } = useAuthContext();
+
+  // Detect mobile screen size
+  React.useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
   
   return (
     <motion.header
@@ -84,12 +97,20 @@ const Header = ({ isDarkMode, onThemeChange }) => {
         </div>
       </div>
       
-      {/* Auth Modal */}
-      <AuthModalV2 
-        isOpen={isAuthModalOpen} 
-        onClose={() => setIsAuthModalOpen(false)} 
-        initialMode={authModalMode}
-      />
+      {/* Auth Modal - Responsive */}
+      {isMobile ? (
+        <MobileAuthModalV2
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          initialMode={authModalMode}
+        />
+      ) : (
+        <AuthModalV2
+          isOpen={isAuthModalOpen}
+          onClose={() => setIsAuthModalOpen(false)}
+          initialMode={authModalMode}
+        />
+      )}
     </motion.header>
   );
 };

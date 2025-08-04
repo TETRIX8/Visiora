@@ -1,16 +1,17 @@
 // src/components/layout/Footer.jsx
 import React from 'react';
-import { motion } from 'framer-motion';
-import { Heart, Github, Twitter, Palette, Sparkles } from 'lucide-react';
+import { Heart, Palette, Sparkles } from 'lucide-react';
 import GlassCard from '../ui/GlassCard';
-import TechStackScroll from '../ui/TechStackScroll';
+import SocialLinksDemo from '../ui/SocialLinksDemo';
 
 const Footer = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="relative py-20 mt-20">
-      <div className="container mx-auto px-6">
+    <>
+      <SocialLinksDemo />
+      <footer className="relative py-20 mt-20">
+        <div className="container mx-auto px-6">
         {/* Main Footer Content */}
         <GlassCard className="text-center">
           <div className="space-y-8">
@@ -54,11 +55,20 @@ const Footer = () => {
               </div>
             </div>
 
-            {/* Tech Stack - Scrolling Animation */}
+            {/* Tech Stack */}
             <div className="space-y-4">
               <p className="text-sm text-slate-600 dark:text-white/60">Powered by</p>
               <div className="w-full max-w-4xl mx-auto py-4">
-                <TechStackScroll />
+                <div className="flex flex-wrap justify-center gap-4 text-sm">
+                  {["React 18", "Tailwind CSS", "Pollinations AI", "Framer Motion", "Vite", "Firebase"].map((tech) => (
+                    <span
+                      key={tech}
+                      className="px-3 py-1 bg-slate-200/50 dark:bg-white/10 rounded-full text-slate-700 dark:text-white/70 font-semibold"
+                    >
+                      {tech}
+                    </span>
+                  ))}
+                </div>
               </div>
             </div>
           </div>
@@ -85,6 +95,7 @@ const Footer = () => {
         <div className="absolute bottom-0 left-0 right-0 h-px bg-gradient-to-r from-transparent via-white/20 to-transparent" />
       </div>
     </footer>
+    </>
   );
 };
 

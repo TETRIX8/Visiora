@@ -1,20 +1,36 @@
 // Firebase configuration and initialization
 import { initializeApp } from "firebase/app";
-import { getAuth } from "firebase/auth";
-import { getFirestore } from "firebase/firestore";
+import { getAuth, connectAuthEmulator } from "firebase/auth";
+import { getFirestore, connectFirestoreEmulator } from "firebase/firestore";
 import { getStorage } from "firebase/storage";
 
 // Your web app's Firebase configuration
-// Replace with your actual Firebase config from Firebase console
+// Using environment variables for security
 const firebaseConfig = {
-  apiKey: "AIzaSyBUI4TCLHF52tNtONRGewB6waoiuE649UI",
-  authDomain: "visiora-img.firebaseapp.com",
-  projectId: "visiora-img",
-  storageBucket: "visiora-img.firebasestorage.app",
-  messagingSenderId: "265993694120",
-  appId: "1:265993694120:web:58c767ee82e7d686670b9d",
-  measurementId: "G-G79442HTMX"
+  apiKey: import.meta.env.VITE_FIREBASE_API_KEY,
+  authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN,
+  projectId: import.meta.env.VITE_FIREBASE_PROJECT_ID,
+  storageBucket: import.meta.env.VITE_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: import.meta.env.VITE_FIREBASE_MESSAGING_SENDER_ID,
+  appId: import.meta.env.VITE_FIREBASE_APP_ID,
+  measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID
 };
+
+// Validate required environment variables
+const requiredEnvVars = [
+  'VITE_FIREBASE_API_KEY',
+  'VITE_FIREBASE_AUTH_DOMAIN',
+  'VITE_FIREBASE_PROJECT_ID',
+  'VITE_FIREBASE_STORAGE_BUCKET',
+  'VITE_FIREBASE_MESSAGING_SENDER_ID',
+  'VITE_FIREBASE_APP_ID'
+];
+
+const missingVars = requiredEnvVars.filter(varName => !import.meta.env[varName]);
+if (missingVars.length > 0) {
+  console.error('Missing required environment variables:', missingVars);
+  throw new Error(`Missing Firebase configuration: ${missingVars.join(', ')}`);
+}
 
 // Initialize Firebase
 const app = initializeApp(firebaseConfig);
@@ -23,5 +39,19 @@ const app = initializeApp(firebaseConfig);
 export const auth = getAuth(app);
 export const db = getFirestore(app);
 export const storage = getStorage(app);
+
+// Configure auth settings for better deployment compatibility
+auth.settings = {
+  appVerificationDisabledForTesting: false
+};
+
+// Add error handling for auth domain issues
+auth.onAuthStateChanged((user) => {
+  if (user) {
+    console.log('User authenticated successfully');
+  }
+}, (error) => {
+  console.error('Auth state change error:', error);
+});
 
 export default app;

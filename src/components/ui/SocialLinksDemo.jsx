@@ -1,60 +1,116 @@
-"use client"
+// src/components/ui/SocialLinksDemo.jsx
+import React from 'react';
+import { motion } from 'framer-motion';
+import { Github, Twitter, Linkedin, Mail, Globe } from 'lucide-react';
 
-import React from "react"
-import { SparklesIcon, Linkedin, Github, Twitter } from "lucide-react"
+const SocialLinksDemo = () => {
+  const socialLinks = [
+    {
+      name: 'GitHub',
+      icon: Github,
+      url: 'https://github.com/Kandariarjun07',
+      color: 'hover:text-gray-900 dark:hover:text-white',
+      bgColor: 'hover:bg-gray-100 dark:hover:bg-gray-800'
+    },
+    {
+      name: 'Twitter',
+      icon: Twitter,
+      url: 'https://x.com/kandariarjun7',
+      color: 'hover:text-blue-500',
+      bgColor: 'hover:bg-blue-50 dark:hover:bg-blue-900/20'
+    },
+    {
+      name: 'LinkedIn',
+      icon: Linkedin,
+      url: 'https://www.linkedin.com/in/kandariarjun',
+      color: 'hover:text-blue-600',
+      bgColor: 'hover:bg-blue-50 dark:hover:bg-blue-900/20'
+    },
+    {
+      name: 'Email',
+      icon: Mail,
+      url: 'mailto:visioracompany@gmail.com',
+      color: 'hover:text-red-500',
+      bgColor: 'hover:bg-red-50 dark:hover:bg-red-900/20'
+    },
+    {
+      name: 'Portfolio',
+      icon: Globe,
+      url: 'https://kandariarjun.netlify.app/',
+      color: 'hover:text-purple-500',
+      bgColor: 'hover:bg-purple-50 dark:hover:bg-purple-900/20'
+    }
+  ];
 
-import { Badge } from "./badge"
-
-const SocialButton = ({ icon: Icon, label, href, className = "" }) => (
-  <a 
-    href={href}
-    target="_blank"
-    rel="noopener noreferrer"
-    className={`group inline-flex items-center gap-3 md:gap-4 px-4 py-3 md:px-6 md:py-4 bg-slate-200/50 dark:bg-white/10 rounded-2xl md:rounded-3xl border border-slate-300/50 dark:border-white/20 hover:border-slate-400/60 dark:hover:border-white/30 transition-all duration-300 hover:scale-105 cursor-pointer ${className}`}
-  >
-    <div className="w-8 h-8 md:w-12 md:h-12 rounded-xl md:rounded-2xl bg-black dark:bg-white flex items-center justify-center transition-all duration-500 ease-in-out group-hover:bg-white dark:group-hover:bg-black">
-      <Icon className="w-4 h-4 md:w-6 md:h-6 text-white dark:text-black transition-all duration-500 ease-in-out group-hover:text-black dark:group-hover:text-white" />
-    </div>
-    <span className="text-sm md:text-xl font-semibold text-black dark:text-white uppercase tracking-wide">
-      {label}
-    </span>
-  </a>
-)
-
-export function SocialLinksDemo() {
   return (
-    <section className="mx-auto mt-24 mb-16 w-full max-w-4xl rounded-[24px] border border-black/5 p-2 shadow-sm dark:border-white/5 md:rounded-t-[44px]">
-      <div className="relative mx-auto w-full rounded-[24px] border border-black/5 bg-neutral-800/5 shadow-sm dark:border-white/5 md:gap-8 md:rounded-b-[20px] md:rounded-t-[40px]">
-        <article className="z-50 mt-6 md:mt-8 flex flex-col items-center justify-center">
-          <Badge
-            variant="outline"
-            className="mb-4 rounded-[14px] border border-black/10 bg-white text-xs md:text-sm dark:border-white/5 dark:bg-neutral-800/5"
-          >
-            <SparklesIcon className="w-3 h-3 md:w-4 md:h-4 mr-1 fill-[#EEBDE0] stroke-1 text-neutral-800 dark:text-neutral-200" />
-            Connect With Me
-          </Badge>
-        </article>
+    <div className="w-full py-12 bg-gradient-to-r from-slate-50 to-slate-100 dark:from-slate-900/50 dark:to-slate-800/50 border-t border-slate-200/50 dark:border-white/10">
+      <div className="max-w-6xl mx-auto px-4">
+        <div className="text-center mb-8">
+          <h3 className="text-2xl font-bold text-slate-800 dark:text-white mb-2">
+            Connect with the Developer
+          </h3>
+          <p className="text-slate-600 dark:text-white/70">
+            Follow my journey in AI, web development, and creative coding
+          </p>
+        </div>
         
-        <section className="h-full px-8 pb-6 md:pb-12">
-          <div className="flex flex-col sm:flex-row gap-4 md:gap-6 items-center justify-center flex-wrap">
-            <SocialButton 
-              icon={Linkedin}
-              label="LinkedIn"
-              href="https://linkedin.com/in/kandariarjun"
-            />
-            <SocialButton 
-              icon={Github}
-              label="GitHub"
-              href="https://github.com/Kandariarjun07/"
-            />
-            <SocialButton 
-              icon={Twitter}
-              label="Twitter"
-              href="https://x.com/kandari_arjun"
-            />
-          </div>
-        </section>
+        <div className="flex justify-center items-center space-x-6">
+          {socialLinks.map((link, index) => {
+            const IconComponent = link.icon;
+            return (
+              <motion.a
+                key={link.name}
+                href={link.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className={`
+                  group relative p-4 rounded-xl border border-slate-200/50 dark:border-white/10 
+                  bg-white/50 dark:bg-white/5 backdrop-blur-sm
+                  transition-all duration-300 ease-out
+                  ${link.bgColor}
+                `}
+                whileHover={{ 
+                  scale: 1.05,
+                  y: -2
+                }}
+                whileTap={{ scale: 0.95 }}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ 
+                  delay: index * 0.1,
+                  duration: 0.5,
+                  ease: "easeOut"
+                }}
+              >
+                <IconComponent 
+                  size={24} 
+                  className={`
+                    text-slate-600 dark:text-white/70 
+                    transition-colors duration-300
+                    ${link.color}
+                  `}
+                />
+                
+                {/* Tooltip */}
+                <div className="absolute -top-12 left-1/2 transform -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
+                  <div className="bg-slate-800 dark:bg-white text-white dark:text-slate-800 px-3 py-1 rounded-lg text-sm font-medium whitespace-nowrap">
+                    {link.name}
+                    <div className="absolute top-full left-1/2 transform -translate-x-1/2 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-slate-800 dark:border-t-white"></div>
+                  </div>
+                </div>
+              </motion.a>
+            );
+          })}
+        </div>
+        
+        <div className="text-center mt-8">
+          <p className="text-sm text-slate-500 dark:text-white/50">
+            Built with ❤️ by Arjun Singh Kandari
+          </p>
+        </div>
       </div>
-    </section>
-  )
-}
+    </div>
+  );
+};
+
+export default SocialLinksDemo;

@@ -13,7 +13,7 @@ import {
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
-import { saveGeneratedImage } from './imageService';
+import { saveGeneratedImage } from './imageServiceV2';
 
 /**
  * Save a project to the user's library and also save image to the flattened structure

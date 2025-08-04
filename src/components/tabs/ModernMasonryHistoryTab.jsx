@@ -118,7 +118,7 @@ const ModernMasonryHistoryTab = memo(({
     
     try {
       // Import the delete function dynamically to prevent circular dependencies
-      const { deleteGeneratedImage } = await import('../../api/imageService');
+      const { deleteGeneratedImage } = await import('../../api/imageServiceV2');
       
       // Call the delete function with the required IDs using the flattened structure
       await deleteGeneratedImage(
