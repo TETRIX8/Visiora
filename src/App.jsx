@@ -88,7 +88,7 @@ const EmailVerificationModal = ({ email, onClose, onGoToLogin }) => {
           <ol className="text-xs text-blue-700 dark:text-blue-300 space-y-0.5 list-decimal list-inside">
             <li>Check your email inbox first</li>
             <li><strong>Check spam/junk folder</strong> - emails often go there</li>
-            <li>Add <code>noreply@visiora-img.firebaseapp.com</code> to contacts</li>
+            <li>Add <code>noreply@{import.meta.env.VITE_FIREBASE_PROJECT_ID}.firebaseapp.com</code> to contacts</li>
             <li>Click the verification link in the email</li>
             <li>Return here to log in and get your bonus credits</li>
           </ol>
